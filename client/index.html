@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="general.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="mainMenu">
+        <!--logo
+        
+        -->
+
+        <div class="menuButtonsDiv center-all" id="menuButtonsDiv">
+            <button class="menuBtn block" id="hostGameButton">Host</button>
+            <button class="menuBtn block">Join</button>
+            <button class="menuBtn block">How To Play</button>
+            <button class="menuBtn block" id="exitButton">Exit</button>
+        </div>
+    </div>
+
+    <div class="hostGame" hidden="true">
+        <div class="center-all hostGameElementsDiv">
+            <div class="diffSelection hostGameElement">
+                <button data-diff="easy" class="diffBtn">Easy</button>
+                <button data-diff="normal" class="diffBtn">Normal</button>
+                <button data-diff="hard" class="diffBtn">Hard</button>
+            </div>
+
+            <input type="text" name="name" id="nameTextbox" class="nameTextbox hostGameElement">
+
+            <button class="createBtn hostGameElement" id="createBtn">Create</button>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>

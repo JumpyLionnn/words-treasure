@@ -2,9 +2,9 @@
     "name": "client",
     "version": "1.0.0",
     "description": "the game client",
-    "main": "main.js",
+    "main": "app.js",
     "scripts": {
-        "start": "nodemon main.js"
+        "start": "electron app.js"
     },
     "author": "fwipsity",
     "license": "ISC",

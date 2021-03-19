@@ -1,0 +1,33 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.center-all {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.center-h {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.center-v {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.block {
+    display: block;
+}
+
+.btn {}
+
+.btn:focus {
+    outline: none;
+}
