@@ -7,38 +7,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="general.css">
+
+    <script src="http://localhost:3300/socket.io/socket.io.js" defer></script>
+
+    <script src="main.js" defer></script>
+
     <title>Document</title>
 </head>
 
 <body>
-    <div class="mainMenu">
+    <div class="mainMenu window">
         <!--logo
         
         -->
 
         <div class="menuButtonsDiv center-all" id="menuButtonsDiv">
             <button class="menuBtn block" id="hostGameButton">Host</button>
-            <button class="menuBtn block">Join</button>
-            <button class="menuBtn block">How To Play</button>
+            <button class="menuBtn block" id="joinGameButton">Join</button>
+            <button class="menuBtn block" id="howToPlayButton">How To Play</button>
             <button class="menuBtn block" id="exitButton">Exit</button>
         </div>
     </div>
 
-    <div class="hostGame" hidden="true">
+    <div class="howToPlay window" hidden>
+        How To Play?
+    </div>
+
+    <div class="hostGame window" hidden>
         <div class="center-all hostGameElementsDiv">
+            <label for="">duration</label>
+            <select id="duration" name="Duration">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+            <label for="">max players</label>
+            <select id="maxPlayers" name="Max Players">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10" selected>10</option>
+            </select>
             <div class="diffSelection hostGameElement">
-                <button data-diff="easy" class="diffBtn">Easy</button>
-                <button data-diff="normal" class="diffBtn">Normal</button>
-                <button data-diff="hard" class="diffBtn">Hard</button>
+                <button data-diff="easy" class="diffBtn btn">Easy</button>
+                <button data-diff="normal" class="diffBtn btn diffSelected">Normal</button>
+                <button data-diff="hard" class="diffBtn btn">Hard</button>
             </div>
 
-            <input type="text" name="name" id="nameTextbox" class="nameTextbox hostGameElement">
+            <input type="text" name="name" id="hostNameTextbox" class="textBox">
 
             <button class="createBtn hostGameElement" id="createBtn">Create</button>
         </div>
     </div>
 
-    <script src="main.js"></script>
+    <div class="joinGame window" hidden>
+        <div class="joinGameElementsDiv center-all">
+            <label for="">name</label>
+            <input type="text" name="name" id="joinNameTextbox" class="textBox">
+            <label for="">code</label>
+            <input type="text" name="code" id="codeTextbox" class="textBox">
+
+            <div class="message" id="joinMessage"></div>
+
+            <button class="joinBtn" id="joinBtn">Join</button>
+        </div>
+    </div>
+
+    <div class="waitingRoom window" hidden>
+        <div class="center-all">
+            <h2 class="playersTitle margin-auto">Players</h2>
+            <ul class="players no-format" id="players">
+            </ul>
+            <div class="code margin-auto" id="code"></div>
+            <button class="startGameBtn margin-auto btn" id="startGameBtn" hidden>Start Game</button>
+        </div>
+
+    </div>
+
+    <div class="inGame window" hidden>
+
+    </div>
+
+    <div class="score window" hidden>
+
+    </div>
+
+
 </body>
 
 </html>

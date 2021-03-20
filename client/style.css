@@ -4,7 +4,7 @@ body {
     height: 100%;
 }
 
-.mainMenu {
+.window {
     width: 100%;
     height: 100%;
 }
@@ -28,7 +28,7 @@ body {
 
 .hostGameElementsDiv {
     display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-rows: repeat(7, 1fr);
     grid-gap: 10px;
 }
 
@@ -37,6 +37,10 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 5px;
+}
+
+.diffSelected {
+    border: 3px solid black;
 }
 
 .nameTextbox {
@@ -61,4 +65,37 @@ body {
 .createBtn {
     margin: 0 auto;
     width: 60%;
+}
+
+.joinGameElementsDiv {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    grid-gap: 10px;
+}
+
+.message {
+    color: red;
+}
+
+.waitingRoom {
+    text-align: center;
+}
+
+.playersTitle {
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.players {
+    text-align: center;
+    margin: 10px 0 20px 0;
+}
+
+.players li {
+    margin: 5px 0;
+}
+
+.code {
+    margin: 10px;
+    text-align: center;
 }
