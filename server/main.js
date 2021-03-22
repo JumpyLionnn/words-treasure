@@ -66,15 +66,6 @@ function start() {
     });
 }
 start();
-function makeCode(length) {
-    let result = '';
-    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
 function addWordHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {
         let player = yield db.get("SELECT * FROM players WHERE id = ?", socket.id);
@@ -90,7 +81,8 @@ function addWordHandler(data, socket, db) {
         if (!checkMatchingWord(data.word, game.word)) {
             socket.emit("wordResult", {
                 correct: false,
-                word: data.word
+                word: data.word,
+                message: "The word's letters are not matching the given word's letters"
             });
             return;
         }
@@ -98,7 +90,8 @@ function addWordHandler(data, socket, db) {
         if (!word) {
             socket.emit("wordResult", {
                 correct: false,
-                word: data.word
+                word: data.word,
+                message: "The word does not exists in the words stockpile"
             });
             return;
         }
@@ -106,7 +99,8 @@ function addWordHandler(data, socket, db) {
         if (wordDuplicate) {
             socket.emit("wordResult", {
                 correct: false,
-                word: data.word
+                word: data.word,
+                message: "You already wrote this word"
             });
             return;
         }
@@ -135,10 +129,19 @@ function disconnect(socketId, db) {
         let player = yield db.get("SELECT * FROM players WHERE id = ?", [socketId]);
         if (player) {
             yield db.run("DELETE FROM players WHERE id = ?", [socketId]);
-            io.sockets.socket(socketId).leave(player.gameId);
+            if (io.sockets.sockets[socketId]) {
+                io.sockets.sockets[socketId].leave(player.gameId);
+            }
             let players = yield db.all("SELECT * FROM players WHERE gameId = ?", [player.gameId]);
             if (players.length === 0) {
                 yield db.run("DELETE FROM games WHERE id = ?", [player.gameId]);
+            }
+            else {
+                let game = yield db.get("SELECT * FROM games WHERE id = ?", [player.gameId]);
+                if (game.host === socketId) {
+                    yield db.run("UPDATE games SET host = ? WHERE id = ?", [players[0].id, game.id]);
+                }
+                io.to(player.gameId).emit("playerLeft", { name: player.name, host: players[0].name });
             }
         }
     });
@@ -260,6 +263,15 @@ function hostHandler(data, socket, db) {
         db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name]);
         socket.emit("gameCreated", { code: code });
     });
+}
+function makeCode(length) {
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
 function joinHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {

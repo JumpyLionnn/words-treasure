@@ -1,5 +1,6 @@
 {
     "name": "client",
+    "productName": "word-game",
     "version": "1.0.0",
     "description": "the game client",
     "main": "app.js",

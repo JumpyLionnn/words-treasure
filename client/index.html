@@ -67,6 +67,8 @@
 
             <input type="text" name="name" id="hostNameTextbox" class="textBox">
 
+            <div class="hostMessage" id="hostMessage"></div>
+
             <button class="createBtn hostGameElement" id="createBtn">Create</button>
         </div>
     </div>
@@ -90,7 +92,7 @@
             <ul class="players no-format" id="players">
             </ul>
             <div class="code margin-auto" id="code"></div>
-            <div class="message" id="startMessage"></div>
+            <div class="waitingMessage" id="waitingMessage"></div>
             <button class="startGameBtn margin-auto btn" id="startGameBtn" hidden>Start Game</button>
         </div>
 
@@ -100,6 +102,7 @@
         <div class="timeRemaining" id="timeRemaining"></div>
         <div class="wordDisplay" id="wordDisplay"></div>
         <input type="text" name="wordInput" class="wordInput" id="wordInput">
+        <div class="inGameMessage" id="inGameMessage"></div>
         <button class="submitWord" id="submitWord">Submit</button>
         <table class="currentWords" id="currentWords"></table>
     </div>

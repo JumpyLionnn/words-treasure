@@ -1,18 +1,6 @@
 "use strict";
 const durationDropDown = document.getElementById("duration");
 const maxPlayersDropDown = document.getElementById("maxPlayers");
-const createButton = document.getElementById("createBtn");
-const hostNameTextbox = document.getElementById("hostNameTextbox");
-hostNameTextbox.addEventListener("input", () => {
-    let name = hostNameTextbox.value;
-    if (name.length > 10 || name.length < 2) {
-        hostNameTextbox.classList.add("textboxError");
-    }
-    else {
-        hostNameTextbox.classList.remove("textboxError");
-    }
-});
-let diffSelection = "normal";
 const diffButtons = document.querySelectorAll("button.diffBtn");
 diffButtons.forEach((element) => {
     element.addEventListener("click", () => {
@@ -23,21 +11,42 @@ diffButtons.forEach((element) => {
         element.classList.add("diffSelected");
     });
 });
-createButton.addEventListener("click", () => {
-    let duration = durationDropDown.selectedIndex + 2;
-    let maxPlayers = maxPlayersDropDown.selectedIndex + 2;
+const hostNameTextbox = document.getElementById("hostNameTextbox");
+hostNameTextbox.addEventListener("input", () => {
     let name = hostNameTextbox.value;
     if (name.length > 10 || name.length < 2) {
-        console.log("the name length is not correct");
+        hostNameTextbox.classList.add("textboxError");
+    }
+    else {
+        hostNameTextbox.classList.remove("textboxError");
+    }
+});
+const hostMessage = document.getElementById("hostMessage");
+const createButton = document.getElementById("createBtn");
+let diffSelection = "normal";
+let hostGameEnterKeyUpdated = false;
+createButton.addEventListener("click", createGame);
+function startHostGameWindow() {
+    window.addEventListener("keydown", hostGameKeyDown);
+    window.addEventListener("keyup", hostGameKeyUp);
+}
+function createGame() {
+    let duration = durationDropDown.selectedIndex + 2;
+    let maxPlayers = maxPlayersDropDown.selectedIndex + 2;
+    playerName = hostNameTextbox.value;
+    if (playerName.length > 10 || playerName.length < 2) {
+        hostMessage.innerText = "the name length should be in range of 2 - 10 letters";
     }
     else {
         socket.on("hostGameError", (data) => {
-            console.log(data);
+            hostMessage.innerText = data.message;
         });
         socket.on("gameCreated", (data) => {
+            window.removeEventListener("keydown", hostGameKeyDown);
+            window.removeEventListener("keyup", hostGameKeyUp);
             hostGameWindow.hidden = true;
             waitingRoomWindow.hidden = false;
-            data.players = [name];
+            data.players = [playerName];
             data.diff = diffSelection;
             data.duration = duration;
             data.maxPlayers = maxPlayers;
@@ -47,34 +56,38 @@ createButton.addEventListener("click", () => {
             duration: duration,
             maxPlayers: maxPlayers,
             diff: diffSelection,
-            name: name
+            name: playerName
         });
     }
-});
+}
+function hostGameKeyDown(e) {
+    if (e.key === "Enter" && hostGameEnterKeyUpdated === false) {
+        createGame();
+        hostGameEnterKeyUpdated = true;
+    }
+}
+function hostGameKeyUp(e) {
+    if (e.key === "Enter") {
+        hostGameEnterKeyUpdated = false;
+    }
+}
 const timeRemainingDiv = document.getElementById("timeRemaining");
 const wordDisplayDiv = document.getElementById("wordDisplay");
 const wordInput = document.getElementById("wordInput");
 wordInput.addEventListener("input", () => {
+    inGameMessage.innerText = "";
     wordInput.value = wordInput.value.replace(/[\W_]+/g, "");
 });
+const inGameMessage = document.getElementById("inGameMessage");
 const submitWordBtn = document.getElementById("submitWord");
 submitWordBtn.addEventListener("click", submitWord);
 const currentWordsTable = document.getElementById("currentWords");
 let timeRemaining;
+let inGameEnterKeyUpdated = false;
 function startInGameWindow(data) {
     wordDisplayDiv.innerText = data.word;
-    let enterKeyUpdated = false;
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && enterKeyUpdated === false) {
-            enterKeyUpdated = true;
-            submitWord();
-        }
-    });
-    window.addEventListener("keyup", (e) => {
-        if (e.key === "Enter") {
-            enterKeyUpdated = false;
-        }
-    });
+    inGameWindow.addEventListener("keydown", inGameKeyDown);
+    inGameWindow.addEventListener("keyup", inGameKeyUp);
     timeRemainingDiv.innerText = data.duration + ":00";
     timeRemaining = data.duration * 60;
     let timer = setInterval(() => {
@@ -92,11 +105,10 @@ function startInGameWindow(data) {
         }
     }, 1000);
     socket.on("addWordError", (data) => {
-        console.log(data);
+        inGameMessage.innerText = data.message;
     });
     socket.on("wordResult", (data) => {
         if (data.correct) {
-            wordInput.value = "";
             const wordTh = document.createElement("td");
             wordTh.innerText = data.word;
             if (currentWordsTable.lastChild) {
@@ -115,8 +127,13 @@ function startInGameWindow(data) {
                 currentWordsTable.appendChild(tr);
             }
         }
+        else {
+            inGameMessage.innerText = data.message;
+        }
     });
     socket.on("ended", (data) => {
+        window.removeEventListener("keydown", inGameKeyDown);
+        window.removeEventListener("keyup", inGameKeyUp);
         inGameWindow.hidden = true;
         scoreWindow.hidden = false;
         startScoreWindow(data);
@@ -125,11 +142,24 @@ function startInGameWindow(data) {
 function submitWord() {
     wordInput.focus();
     socket.emit("addWord", { word: wordInput.value });
+    wordInput.value = "";
+}
+function inGameKeyDown(e) {
+    if (e.key === "Enter" && inGameEnterKeyUpdated === false) {
+        inGameEnterKeyUpdated = true;
+        submitWord();
+    }
+}
+function inGameKeyUp(e) {
+    if (e.key === "Enter") {
+        inGameEnterKeyUpdated = false;
+    }
 }
 const codeTextbox = document.getElementById("codeTextbox");
 const joinButton = document.getElementById("joinBtn");
 const joinMessage = document.getElementById("joinMessage");
 const joinNameTextbox = document.getElementById("joinNameTextbox");
+let joinGameEnterKeyUpdated = false;
 joinNameTextbox.addEventListener("input", () => {
     let name = joinNameTextbox.value;
     if (name.length > 10 || name.length < 2) {
@@ -140,12 +170,18 @@ joinNameTextbox.addEventListener("input", () => {
     }
 });
 codeTextbox.addEventListener("input", () => {
-    codeTextbox.value = codeTextbox.value.toUpperCase();
+    codeTextbox.value = codeTextbox.value.toUpperCase().replace(/[\W_]+/g, "");
+    ;
 });
-joinButton.addEventListener("click", () => {
-    let name = joinNameTextbox.value;
+function startJoinGameWindow() {
+    window.addEventListener("keydown", joinGameKeyDown);
+    window.addEventListener("keyup", joinGameKeyUp);
+}
+joinButton.addEventListener("click", joinGame);
+function joinGame() {
+    playerName = joinNameTextbox.value;
     let code = codeTextbox.value;
-    if (name.length > 10 || name.length < 2) {
+    if (playerName.length > 10 || playerName.length < 2) {
         joinMessage.innerText = "The name length should be in range of 2 -10 characters";
     }
     else {
@@ -153,18 +189,30 @@ joinButton.addEventListener("click", () => {
             joinMessage.innerText = data.message;
         });
         socket.once("joinedGame", (data) => {
-            console.log(data);
+            window.removeEventListener("keydown", joinGameKeyDown);
+            window.removeEventListener("keyup", joinGameKeyUp);
             joinGameWindow.hidden = true;
             waitingRoomWindow.hidden = false;
             data.code = code;
             startWaitingRoom(data, false);
         });
         socket.emit("join", {
-            name: name,
+            name: playerName,
             code: code
         });
     }
-});
+}
+function joinGameKeyDown(e) {
+    if (e.key === "Enter" && joinGameEnterKeyUpdated === false) {
+        joinGame();
+        joinGameEnterKeyUpdated = true;
+    }
+}
+function joinGameKeyUp(e) {
+    if (e.key === "Enter") {
+        joinGameEnterKeyUpdated = false;
+    }
+}
 const remote = require('electron').remote;
 const mainMenuWindow = document.querySelector("div.mainMenu");
 const howToPlayWindow = document.querySelector("div.howToPlay");
@@ -174,15 +222,18 @@ const waitingRoomWindow = document.querySelector("div.waitingRoom");
 const inGameWindow = document.querySelector("div.inGame");
 const scoreWindow = document.querySelector("div.score");
 let socket = io.connect("http://192.168.100.20:3300/");
+let playerName;
 const hostGameButton = document.getElementById("hostGameButton");
 const joinGameButton = document.getElementById("joinGameButton");
 const howToPlayButton = document.getElementById("howToPlayButton");
 const exitButton = document.getElementById("exitButton");
 hostGameButton.addEventListener("click", (e) => {
+    startHostGameWindow();
     hostGameWindow.hidden = false;
     mainMenuWindow.hidden = true;
 });
 joinGameButton.addEventListener("click", (e) => {
+    startJoinGameWindow();
     joinGameWindow.hidden = false;
     mainMenuWindow.hidden = true;
 });
@@ -211,18 +262,16 @@ function startScoreWindow(data) {
         scoreTable.appendChild(tr);
     }
 }
-const startButton = document.getElementById("startGameBtn");
 const codeDiv = document.getElementById("code");
+const playersUl = document.getElementById("players");
+const waitingMessage = document.getElementById("waitingMessage");
+const startButton = document.getElementById("startGameBtn");
 startButton.addEventListener("click", () => {
     socket.emit("startGame", {});
 });
-const playersUl = document.getElementById("players");
 function startWaitingRoom(data, host) {
     if (host) {
-        startButton.hidden = false;
-        socket.on("startGameError", (data) => {
-            console.log(data);
-        });
+        showHost();
     }
     codeDiv.innerText = "Code: " + data.code;
     for (let i = 0; i < data.players.length; i++) {
@@ -235,9 +284,27 @@ function startWaitingRoom(data, host) {
         playerLi.innerText = data.name;
         playersUl.appendChild(playerLi);
     });
+    socket.on("playerLeft", (data) => {
+        let listElelemnts = playersUl.children;
+        for (let i = 0; i < listElelemnts.length; i++) {
+            let li = listElelemnts[i];
+            if (li.innerText === data.name) {
+                playersUl.removeChild(listElelemnts[i]);
+            }
+        }
+        if (data.host === playerName) {
+            showHost();
+        }
+    });
     socket.on("gameStarted", (data) => {
         waitingRoomWindow.hidden = true;
         inGameWindow.hidden = false;
         startInGameWindow(data);
+    });
+}
+function showHost() {
+    startButton.hidden = false;
+    socket.on("startGameError", (data) => {
+        waitingMessage.innerText = data.message;
     });
 }

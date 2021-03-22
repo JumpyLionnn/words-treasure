@@ -1,22 +1,26 @@
 //elements
 
-const startButton = document.getElementById("startGameBtn") as HTMLButtonElement;
+
 
 const codeDiv = document.getElementById("code") as HTMLDivElement;
+
+
+const playersUl = document.getElementById("players") as HTMLUListElement;
+
+const waitingMessage = document.getElementById("waitingMessage") as HTMLDivElement;
+
+const startButton = document.getElementById("startGameBtn") as HTMLButtonElement;
 
 startButton.addEventListener("click", ()=>{
     socket.emit("startGame", {});
 });
 
-const playersUl = document.getElementById("players") as HTMLUListElement;
 
 function startWaitingRoom(data: any, host: boolean){
     if(host){
-        startButton.hidden = false;
-        socket.on("startGameError", (data)=>{
-            console.log(data);
-        });
+        showHost();
     }
+    
 
     codeDiv.innerText = "Code: " + data.code;
 
@@ -35,9 +39,29 @@ function startWaitingRoom(data: any, host: boolean){
         playersUl.appendChild(playerLi);
     });
 
+    socket.on("playerLeft", (data)=>{
+        let listElelemnts = playersUl.children;
+        for(let i = 0; i < listElelemnts.length; i++){
+            let li = listElelemnts[i] as HTMLLIElement;
+            if(li.innerText === data.name){
+                playersUl.removeChild(listElelemnts[i]);
+            }
+        }
+        if(data.host === playerName){
+            showHost();
+        }
+    });
+
     socket.on("gameStarted", (data)=>{
         waitingRoomWindow.hidden = true;
         inGameWindow.hidden = false;
         startInGameWindow(data);
+    });
+}
+
+function showHost(){
+    startButton.hidden = false;
+    socket.on("startGameError", (data)=>{
+        waitingMessage.innerText = data.message;
     });
 }

@@ -15,7 +15,8 @@ async function addWordHandler(data: any, socket: any, db: any){
     if(!checkMatchingWord(data.word, game.word)){
         socket.emit("wordResult", {
             correct: false,
-            word: data.word
+            word: data.word,
+            message: "The word's letters are not matching the given word's letters"
         });
         return;
     }
@@ -24,7 +25,8 @@ async function addWordHandler(data: any, socket: any, db: any){
     if(!word){
         socket.emit("wordResult", {
             correct: false,
-            word: data.word
+            word: data.word,
+            message: "The word does not exists in the words stockpile"
         });
         return;
     }
@@ -32,7 +34,8 @@ async function addWordHandler(data: any, socket: any, db: any){
     if(wordDuplicate){
         socket.emit("wordResult", {
             correct: false,
-            word: data.word
+            word: data.word,
+            message: "You already wrote this word"
         });
         return;
     }

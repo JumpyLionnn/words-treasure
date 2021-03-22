@@ -18,7 +18,6 @@ async function startGameHandler(data: any, socket: any, db: any){
     db.run("UPDATE games SET state = 'started' WHERE host = ?", [socket.id]);
 
     db.run("UPDATE games SET startTime = ? WHERE host = ?", [Math.floor(Date.now() / 1000),socket.id]);
-
     setTimeout(()=>{
         endGame(game, db);
     }, (game.duration * 60 + timerOffset) * 1000);

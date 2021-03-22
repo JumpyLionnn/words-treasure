@@ -9,15 +9,17 @@ const exitButton = document.getElementById("exitButton") as HTMLButtonElement;
 
 
 
-//main menu buttons eventssssssssssssssssss
+//main menu buttons events
 
 
 hostGameButton.addEventListener("click", (e)=>{
+    startHostGameWindow();
     hostGameWindow.hidden = false;
     mainMenuWindow.hidden = true;
 });
 
 joinGameButton.addEventListener("click", (e)=>{
+    startJoinGameWindow();
     joinGameWindow.hidden = false;
     mainMenuWindow.hidden = true;
 });

@@ -1,17 +1,14 @@
-/*
-<div class="wordDisplay" id="wordDisplay"></div>
-<input type="text" name="wordInput" class="wordInput" id="wordInput">
-<button class="submitWord" id="submitWord">Submit</button>
-<table class="currentWords"></table>
-*/
 const timeRemainingDiv = document.getElementById("timeRemaining") as HTMLDivElement;
 
 const wordDisplayDiv = document.getElementById("wordDisplay") as HTMLDivElement;
 
 const wordInput = document.getElementById("wordInput") as HTMLInputElement;
 wordInput.addEventListener("input", ()=>{
+    inGameMessage.innerText = "";
     wordInput.value = wordInput.value.replace(/[\W_]+/g,"");
 });
+
+const inGameMessage = document.getElementById("inGameMessage") as HTMLDivElement;
 
 const submitWordBtn = document.getElementById("submitWord") as HTMLButtonElement;
 submitWordBtn.addEventListener("click", submitWord);
@@ -20,22 +17,15 @@ const currentWordsTable = document.getElementById("currentWords") as HTMLTableEl
 
 let timeRemaining: number;
 
+let inGameEnterKeyUpdated = false;
+
 
 function startInGameWindow(data: any){
     wordDisplayDiv.innerText = data.word;
 
-    let enterKeyUpdated = false;
-    window.addEventListener("keydown", (e)=>{
-        if(e.key === "Enter" && enterKeyUpdated === false){
-            enterKeyUpdated = true;
-            submitWord();
-        }
-    });
-    window.addEventListener("keyup", (e)=>{
-        if(e.key === "Enter"){
-            enterKeyUpdated = false;
-        }
-    });
+    
+    inGameWindow.addEventListener("keydown", inGameKeyDown);
+    inGameWindow.addEventListener("keyup", inGameKeyUp);
 
     timeRemainingDiv.innerText = data.duration + ":00";
     timeRemaining = data.duration * 60;
@@ -58,12 +48,11 @@ function startInGameWindow(data: any){
 
 
     socket.on("addWordError", (data)=>{
-        console.log(data);
+        inGameMessage.innerText = data.message;
     })
 
     socket.on("wordResult", (data)=>{
         if(data.correct){
-            wordInput.value = "";
             const wordTh = document.createElement("td");
             wordTh.innerText = data.word;
             if(currentWordsTable.lastChild){
@@ -83,9 +72,14 @@ function startInGameWindow(data: any){
             }   
             
         }
+        else{
+            inGameMessage.innerText = data.message;
+        }
     });
 
     socket.on("ended", (data)=>{
+        window.removeEventListener("keydown", inGameKeyDown);
+        window.removeEventListener("keyup", inGameKeyUp);
         inGameWindow.hidden = true;
         scoreWindow.hidden = false;
         startScoreWindow(data);
@@ -95,4 +89,20 @@ function startInGameWindow(data: any){
 function submitWord(){
     wordInput.focus();
     socket.emit("addWord", {word: wordInput.value});
+    wordInput.value = "";
+}
+
+
+function inGameKeyDown(e: any){
+    if(e.key === "Enter" && inGameEnterKeyUpdated === false){
+        inGameEnterKeyUpdated = true;
+        submitWord();
+    }
+}
+
+
+function inGameKeyUp(e: any){
+    if(e.key === "Enter"){
+        inGameEnterKeyUpdated = false;
+    }
 }
