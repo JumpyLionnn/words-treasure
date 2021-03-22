@@ -30,16 +30,12 @@ joinButton.addEventListener("click", ()=>{
         joinMessage.innerText = "The name length should be in range of 2 -10 characters"
     }
     else{
-        if(socket === undefined){
-            socket = io.connect("http://localhost:3300");
-        }
-        
-
         socket.on("joinGameError", (data)=>{
             joinMessage.innerText = data.message;
         });
 
-        socket.on("joinedGame", (data)=>{
+        socket.once("joinedGame", (data: any)=>{
+            console.log(data);
             joinGameWindow.hidden = true;
             waitingRoomWindow.hidden = false;
             data.code = code;

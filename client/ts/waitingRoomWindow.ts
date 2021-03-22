@@ -36,6 +36,8 @@ function startWaitingRoom(data: any, host: boolean){
     });
 
     socket.on("gameStarted", (data)=>{
-        console.log(data);
+        waitingRoomWindow.hidden = true;
+        inGameWindow.hidden = false;
+        startInGameWindow(data);
     });
 }

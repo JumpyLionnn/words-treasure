@@ -19,5 +19,5 @@ const scoreWindow = document.querySelector("div.score") as HTMLDivElement;
 
 
 
-let socket: Socket;
+let socket: Socket = io.connect("http://192.168.100.20:3300/");
 

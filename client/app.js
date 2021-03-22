@@ -4,21 +4,15 @@ const path = require('path');
 function createWindow() {
     const win = new BrowserWindow({
         webPreferences: {
-            devTools: true,
             nodeIntegration: true,
-            preload: path.join(app.getAppPath(), 'preload.js'),
+            /*preload: path.join(app.getAppPath(), 'preload.js'),*/
             sandbox: false,
             enableRemoteModule: true,
-            javascript: true,
-            webSecurity: true,
-            allowRunningInsecureContent: false,
-            textAreasAreResizable: false,
-            experimentalFeatures: false,
+
             contextIsolation: false,
-            nativeWindowOpen: false
         },
     });
-    win.webContents.openDevTools()
+    win.webContents.openDevTools();
 
     win.loadFile('index.html');
     win.maximize();

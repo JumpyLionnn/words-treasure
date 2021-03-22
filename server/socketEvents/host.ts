@@ -57,20 +57,26 @@ async function hostHandler(data: any, socket: any, db: any){
         return;
     }
 
+    // gemerate a random game code
     let code = makeCode(5);
     let result = await db.get("SELECT * FROM games WHERE code = ?", [code]);
     while (result){
         let code = makeCode(5);
         let result = await db.get("SELECT * FROM games WHERE code = ?", [code]);
     }
+
+    // choose a random word
+    let word = await db.get("SELECT word FROM diff WHERE diff = ? ORDER BY RANDOM() LIMIT 1", [diff])
+
+
     await db.run(`INSERT INTO games(code, state, host, duration, diff, maxPlayers, word) VALUES
-        (?, 'waiting', ?, ?, ?, ?, "hello");`, [code, socket.id, duration, diff, maxPlayers]);
+        (?, 'waiting', ?, ?, ?, ?, ?);`, [code, socket.id, duration, diff, maxPlayers, word.word]);
 
     let game = await db.get(`SELECT * FROM games WHERE code = ?`, [code]);
 
     socket.join(game.id);
 
-    db.run(`INSERT INTO players(id, gameId, name, numOfWords) VALUES (?, ?, ?, 0)`, [socket.id, game.id, name])
+    db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name])
     socket.emit("gameCreated", {code: code});
 
 }

@@ -47,13 +47,12 @@ async function joinHandler(data: any, socket: any, db: any){
         playerNames.push(players[i].name);
     }
 
-    db.run("INSERT INTO players(id, gameId, name, numOfWords) VALUES (? ,? ,? ,0)", [socket.id, game.id, name]);
+    db.run("INSERT INTO players(id, gameId, name) VALUES (? ,? ,?)", [socket.id, game.id, name]);
 
     let host = await db.get("SELECT name FROM players WHERE id = ?", [game.host])
 
     io.to(game.id).emit("playerJoined", {name: name});
     socket.join(game.id);
-
     socket.emit("joinedGame", {
         players: playerNames,
         diff: game.diff,

@@ -90,17 +90,22 @@
             <ul class="players no-format" id="players">
             </ul>
             <div class="code margin-auto" id="code"></div>
+            <div class="message" id="startMessage"></div>
             <button class="startGameBtn margin-auto btn" id="startGameBtn" hidden>Start Game</button>
         </div>
 
     </div>
 
     <div class="inGame window" hidden>
-
+        <div class="timeRemaining" id="timeRemaining"></div>
+        <div class="wordDisplay" id="wordDisplay"></div>
+        <input type="text" name="wordInput" class="wordInput" id="wordInput">
+        <button class="submitWord" id="submitWord">Submit</button>
+        <table class="currentWords" id="currentWords"></table>
     </div>
 
     <div class="score window" hidden>
-
+        <table class="scoreTable" id="scoreTable"></table>
     </div>
 
 

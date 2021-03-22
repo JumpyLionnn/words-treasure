@@ -45,8 +45,6 @@ createButton.addEventListener("click", ()=>{
         console.log("the name length is not correct");
     }
     else{
-        socket = io.connect("http://localhost:3300");
-
         socket.on("hostGameError", (data)=>{
             console.log(data);
         });

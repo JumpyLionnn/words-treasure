@@ -1,6 +1,4 @@
 "use strict";
-/// <reference path=".d.ts" />
-// host game buttons
 const durationDropDown = document.getElementById("duration");
 const maxPlayersDropDown = document.getElementById("maxPlayers");
 const createButton = document.getElementById("createBtn");
@@ -33,7 +31,6 @@ createButton.addEventListener("click", () => {
         console.log("the name length is not correct");
     }
     else {
-        socket = io.connect("http://localhost:3300");
         socket.on("hostGameError", (data) => {
             console.log(data);
         });
@@ -54,7 +51,81 @@ createButton.addEventListener("click", () => {
         });
     }
 });
-// join game elements
+const timeRemainingDiv = document.getElementById("timeRemaining");
+const wordDisplayDiv = document.getElementById("wordDisplay");
+const wordInput = document.getElementById("wordInput");
+wordInput.addEventListener("input", () => {
+    wordInput.value = wordInput.value.replace(/[\W_]+/g, "");
+});
+const submitWordBtn = document.getElementById("submitWord");
+submitWordBtn.addEventListener("click", submitWord);
+const currentWordsTable = document.getElementById("currentWords");
+let timeRemaining;
+function startInGameWindow(data) {
+    wordDisplayDiv.innerText = data.word;
+    let enterKeyUpdated = false;
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && enterKeyUpdated === false) {
+            enterKeyUpdated = true;
+            submitWord();
+        }
+    });
+    window.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+            enterKeyUpdated = false;
+        }
+    });
+    timeRemainingDiv.innerText = data.duration + ":00";
+    timeRemaining = data.duration * 60;
+    let timer = setInterval(() => {
+        timeRemaining--;
+        let seconds = timeRemaining % 60;
+        if (timeRemaining === 0) {
+            clearInterval(timer);
+            window.removeEventListener("keydown", submitWord);
+        }
+        if (seconds < 10) {
+            timeRemainingDiv.innerText = Math.floor(timeRemaining / 60) + ":0" + seconds;
+        }
+        else {
+            timeRemainingDiv.innerText = Math.floor(timeRemaining / 60) + ":" + seconds;
+        }
+    }, 1000);
+    socket.on("addWordError", (data) => {
+        console.log(data);
+    });
+    socket.on("wordResult", (data) => {
+        if (data.correct) {
+            wordInput.value = "";
+            const wordTh = document.createElement("td");
+            wordTh.innerText = data.word;
+            if (currentWordsTable.lastChild) {
+                if (currentWordsTable.lastChild.childNodes.length === 5) {
+                    const tr = document.createElement("tr");
+                    tr.appendChild(wordTh);
+                    currentWordsTable.appendChild(tr);
+                }
+                else {
+                    currentWordsTable.lastChild.appendChild(wordTh);
+                }
+            }
+            else {
+                const tr = document.createElement("tr");
+                tr.appendChild(wordTh);
+                currentWordsTable.appendChild(tr);
+            }
+        }
+    });
+    socket.on("ended", (data) => {
+        inGameWindow.hidden = true;
+        scoreWindow.hidden = false;
+        startScoreWindow(data);
+    });
+}
+function submitWord() {
+    wordInput.focus();
+    socket.emit("addWord", { word: wordInput.value });
+}
 const codeTextbox = document.getElementById("codeTextbox");
 const joinButton = document.getElementById("joinBtn");
 const joinMessage = document.getElementById("joinMessage");
@@ -78,13 +149,11 @@ joinButton.addEventListener("click", () => {
         joinMessage.innerText = "The name length should be in range of 2 -10 characters";
     }
     else {
-        if (socket === undefined) {
-            socket = io.connect("http://localhost:3300");
-        }
         socket.on("joinGameError", (data) => {
             joinMessage.innerText = data.message;
         });
-        socket.on("joinedGame", (data) => {
+        socket.once("joinedGame", (data) => {
+            console.log(data);
             joinGameWindow.hidden = true;
             waitingRoomWindow.hidden = false;
             data.code = code;
@@ -97,7 +166,6 @@ joinButton.addEventListener("click", () => {
     }
 });
 const remote = require('electron').remote;
-//windows
 const mainMenuWindow = document.querySelector("div.mainMenu");
 const howToPlayWindow = document.querySelector("div.howToPlay");
 const hostGameWindow = document.querySelector("div.hostGame");
@@ -105,13 +173,11 @@ const joinGameWindow = document.querySelector("div.joinGame");
 const waitingRoomWindow = document.querySelector("div.waitingRoom");
 const inGameWindow = document.querySelector("div.inGame");
 const scoreWindow = document.querySelector("div.score");
-let socket;
-// main menu buttons
+let socket = io.connect("http://192.168.100.20:3300/");
 const hostGameButton = document.getElementById("hostGameButton");
 const joinGameButton = document.getElementById("joinGameButton");
 const howToPlayButton = document.getElementById("howToPlayButton");
 const exitButton = document.getElementById("exitButton");
-//main menu buttons eventssssssssssssssssss
 hostGameButton.addEventListener("click", (e) => {
     hostGameWindow.hidden = false;
     mainMenuWindow.hidden = true;
@@ -127,7 +193,24 @@ howToPlayButton.addEventListener("click", (e) => {
 exitButton.addEventListener("click", (e) => {
     remote.getCurrentWindow().close();
 });
-//elements
+const scoreTable = document.getElementById("scoreTable");
+function startScoreWindow(data) {
+    scoreTable.innerHTML = "";
+    let scores = data.scores;
+    for (let i = 0; i < scores.length; i++) {
+        const tr = document.createElement("tr");
+        const placeTd = document.createElement("td");
+        placeTd.innerText = (i + 1).toString();
+        tr.appendChild(placeTd);
+        const nameTd = document.createElement("td");
+        nameTd.innerText = scores[i].name;
+        tr.appendChild(nameTd);
+        const scoreTd = document.createElement("td");
+        scoreTd.innerText = scores[i].score;
+        tr.appendChild(scoreTd);
+        scoreTable.appendChild(tr);
+    }
+}
 const startButton = document.getElementById("startGameBtn");
 const codeDiv = document.getElementById("code");
 startButton.addEventListener("click", () => {
@@ -153,6 +236,8 @@ function startWaitingRoom(data, host) {
         playersUl.appendChild(playerLi);
     });
     socket.on("gameStarted", (data) => {
-        console.log(data);
+        waitingRoomWindow.hidden = true;
+        inGameWindow.hidden = false;
+        startInGameWindow(data);
     });
 }
