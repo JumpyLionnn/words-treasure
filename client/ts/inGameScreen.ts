@@ -19,10 +19,51 @@ let timeRemaining: number;
 
 let inGameEnterKeyUpdated = false;
 
+socket.on("addWordError", (data)=>{
+    inGameMessage.innerText = data.message;
+})
+
+socket.on("wordResult", (data)=>{
+    if(data.correct){
+        const wordTh = document.createElement("td");
+        wordTh.innerText = data.word;
+        if(currentWordsTable.lastChild){
+            if(currentWordsTable.lastChild.childNodes.length === 5){
+                const tr = document.createElement("tr");
+                tr.appendChild(wordTh);
+                currentWordsTable.appendChild(tr);
+            }
+            else{
+                currentWordsTable.lastChild.appendChild(wordTh);
+            }
+        }
+        else{
+            const tr = document.createElement("tr");
+            tr.appendChild(wordTh);
+            currentWordsTable.appendChild(tr);
+        }   
+        
+    }
+    else{
+        inGameMessage.innerText = data.message;
+    }
+});
+
+socket.on("ended", (data)=>{
+    window.removeEventListener("keydown", inGameKeyDown);
+    window.removeEventListener("keyup", inGameKeyUp);
+    inGameWindow.hidden = true;
+    scoreWindow.hidden = false;
+    startScoreWindow(data);
+});
+
 
 function startInGameWindow(data: any){
-    wordDisplayDiv.innerText = data.word;
+    inGameMessage.innerText = "";
+    wordInput.value = "";
+    currentWordsTable.innerHTML = "";
 
+    wordDisplayDiv.innerText = data.word;
     
     inGameWindow.addEventListener("keydown", inGameKeyDown);
     inGameWindow.addEventListener("keyup", inGameKeyUp);
@@ -45,45 +86,6 @@ function startInGameWindow(data: any){
             timeRemainingDiv.innerText = Math.floor(timeRemaining / 60) + ":" + seconds;
         }
     }, 1000);
-
-
-    socket.on("addWordError", (data)=>{
-        inGameMessage.innerText = data.message;
-    })
-
-    socket.on("wordResult", (data)=>{
-        if(data.correct){
-            const wordTh = document.createElement("td");
-            wordTh.innerText = data.word;
-            if(currentWordsTable.lastChild){
-                if(currentWordsTable.lastChild.childNodes.length === 5){
-                    const tr = document.createElement("tr");
-                    tr.appendChild(wordTh);
-                    currentWordsTable.appendChild(tr);
-                }
-                else{
-                    currentWordsTable.lastChild.appendChild(wordTh);
-                }
-            }
-            else{
-                const tr = document.createElement("tr");
-                tr.appendChild(wordTh);
-                currentWordsTable.appendChild(tr);
-            }   
-            
-        }
-        else{
-            inGameMessage.innerText = data.message;
-        }
-    });
-
-    socket.on("ended", (data)=>{
-        window.removeEventListener("keydown", inGameKeyDown);
-        window.removeEventListener("keyup", inGameKeyUp);
-        inGameWindow.hidden = true;
-        scoreWindow.hidden = false;
-        startScoreWindow(data);
-    });
 }
 
 function submitWord(){

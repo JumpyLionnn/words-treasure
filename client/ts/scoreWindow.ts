@@ -2,6 +2,8 @@
 const scoreTable = document.getElementById("scoreTable") as HTMLTableElement;
 
 
+
+
 function startScoreWindow(data: any){
     scoreTable.innerHTML = "";
     let scores = data.scores;

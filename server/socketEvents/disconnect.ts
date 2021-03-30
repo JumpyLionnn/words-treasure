@@ -11,8 +11,6 @@ async function disconnect(socketId: string, db: any) {
         if(io.sockets.sockets[socketId]){
             io.sockets.sockets[socketId].leave(player.gameId);
         }
-        
-        
 
         let players = await db.all("SELECT * FROM players WHERE gameId = ?", [player.gameId]);
         if(players.length === 0){

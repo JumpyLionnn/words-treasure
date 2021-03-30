@@ -1,3 +1,5 @@
+/// <reference path="main.ts" />
+
 // join game elements
 
 const codeTextbox = document.getElementById("codeTextbox") as HTMLInputElement;
@@ -24,7 +26,26 @@ codeTextbox.addEventListener("input", ()=>{
     codeTextbox.value = codeTextbox.value.toUpperCase().replace(/[\W_]+/g,"");;
 });
 
+let code: string = "";
+
+socket.on("joinGameError", (data)=>{
+    joinMessage.innerText = data.message;
+});
+
+socket.on("joinedGame", (data: any)=>{
+    window.removeEventListener("keydown", joinGameKeyDown);
+    window.removeEventListener("keyup", joinGameKeyUp);
+    joinGameWindow.hidden = true;
+    waitingRoomWindow.hidden = false;
+    data.code = code;
+    startWaitingRoom(data, false);
+})
+
+
 function startJoinGameWindow(){
+    codeTextbox.value = "";
+    joinNameTextbox.value = ""
+    joinMessage.innerText = "";
     window.addEventListener("keydown", joinGameKeyDown);
     window.addEventListener("keyup", joinGameKeyUp);
 }
@@ -33,25 +54,13 @@ joinButton.addEventListener("click", joinGame);
 
 function joinGame(){
     playerName = joinNameTextbox.value;
-    let code = codeTextbox.value;
+    code = codeTextbox.value;
 
     if(playerName.length > 10 || playerName.length < 2){
         joinMessage.innerText = "The name length should be in range of 2 -10 characters"
     }
     else{
-        socket.on("joinGameError", (data)=>{
-            joinMessage.innerText = data.message;
-        });
-
-        socket.once("joinedGame", (data: any)=>{
-            window.removeEventListener("keydown", joinGameKeyDown);
-            window.removeEventListener("keyup", joinGameKeyUp);
-            joinGameWindow.hidden = true;
-            waitingRoomWindow.hidden = false;
-            data.code = code;
-            startWaitingRoom(data, false);
-        })
-
+        
         socket.emit("join", {
             name: playerName,
             code: code

@@ -1,3 +1,4 @@
+
 // main menu buttons
 const hostGameButton = document.getElementById("hostGameButton") as HTMLButtonElement;
 

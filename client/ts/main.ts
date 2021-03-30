@@ -22,3 +22,30 @@ const scoreWindow = document.querySelector("div.score") as HTMLDivElement;
 let socket: Socket = io.connect("http://192.168.100.20:3300/");
 let playerName: string;
 
+
+const mainMenuButtons = document.querySelectorAll("#mainMenuButton") as NodeListOf<HTMLButtonElement>;
+mainMenuButtons.forEach((element)=>{
+    element.addEventListener("click", (e)=>{
+        hideAll();
+        mainMenuWindow.hidden = false;
+    });
+});
+
+
+const disconnectButtons = document.querySelectorAll("#disconnectButton") as NodeListOf<HTMLButtonElement>;
+disconnectButtons.forEach((element)=>{
+    element.addEventListener("click", (e)=>{
+        socket.emit("leave", {});
+        hideAll();
+        mainMenuWindow.hidden = false;
+    });
+});
+
+function hideAll(){
+    howToPlayWindow.hidden = true;
+    hostGameWindow.hidden = true;
+    joinGameWindow.hidden = true;
+    waitingRoomWindow.hidden = true;
+    inGameWindow.hidden = true;
+    scoreWindow.hidden = true;
+}

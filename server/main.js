@@ -58,6 +58,9 @@ function start() {
             socket.on("addWord", (data) => __awaiter(this, void 0, void 0, function* () {
                 yield addWordHandler(data, socket, db);
             }));
+            socket.on("leave", (data) => {
+                disconnect(socket.id, db);
+            });
             socket.on("disconnect", (data) => {
                 console.log("user left");
                 disconnect(socket.id, db);

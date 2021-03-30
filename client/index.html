@@ -31,6 +31,7 @@
 
     <div class="howToPlay window" hidden>
         How To Play?
+        <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
     </div>
 
     <div class="hostGame window" hidden>
@@ -70,6 +71,7 @@
             <div class="hostMessage" id="hostMessage"></div>
 
             <button class="createBtn hostGameElement" id="createBtn">Create</button>
+            <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
         </div>
     </div>
 
@@ -83,6 +85,7 @@
             <div class="message" id="joinMessage"></div>
 
             <button class="joinBtn" id="joinBtn">Join</button>
+            <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
         </div>
     </div>
 
@@ -92,8 +95,12 @@
             <ul class="players no-format" id="players">
             </ul>
             <div class="code margin-auto" id="code"></div>
+            <div class="diffDiv" id="diffDiv"></div>
+            <div class="durationDiv" id="durationDiv"></div>
+            <div class="maxPlayersDiv" id="maxPlayersDiv"></div>
             <div class="waitingMessage" id="waitingMessage"></div>
             <button class="startGameBtn margin-auto btn" id="startGameBtn" hidden>Start Game</button>
+            <button class="disconnectButton" id="disconnectButton">Disconnect</button>
         </div>
 
     </div>
@@ -105,10 +112,12 @@
         <div class="inGameMessage" id="inGameMessage"></div>
         <button class="submitWord" id="submitWord">Submit</button>
         <table class="currentWords" id="currentWords"></table>
+        <button class="disconnectButton" id="disconnectButton">Disconnect</button>
     </div>
 
     <div class="score window" hidden>
         <table class="scoreTable" id="scoreTable"></table>
+        <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
     </div>
 
 

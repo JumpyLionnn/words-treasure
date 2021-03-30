@@ -59,6 +59,10 @@ async function start() {
             await addWordHandler(data, socket, db);
         });
 
+        socket.on("leave", (data: any)=>{
+            disconnect(socket.id, db);
+        });
+
         socket.on("disconnect", (data: any)=>{
             console.log("user left")
             disconnect(socket.id, db);
