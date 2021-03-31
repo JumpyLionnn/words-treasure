@@ -4,9 +4,7 @@
     "description": "a word  game for school",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node server/main.js",
-        "build": "webpack"
+        "start": "node server/main.js"
     },
     "repository": {
         "type": "git",
@@ -18,11 +16,7 @@
         "url": "https://github.com/fwipsity/word-game/issues"
     },
     "homepage": "https://github.com/fwipsity/word-game#readme",
-    "engines": {
-        "node": "14.x"
-    },
     "dependencies": {
-        "@types/socket.io": "^2.1.13",
         "express": "^4.17.1",
         "socket.io": "^4.0.0",
         "sqlite": "^4.0.19",
