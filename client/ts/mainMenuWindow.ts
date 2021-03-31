@@ -33,5 +33,5 @@ howToPlayButton.addEventListener("click", (e)=>{
 
 
 exitButton.addEventListener("click", (e)=>{
-    remote.getCurrentWindow().close();
+    window.close();
 });

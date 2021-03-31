@@ -1,4 +1,3 @@
-const remote = require('electron').remote;
 
 //windows
 const mainMenuWindow = document.querySelector("div.mainMenu") as HTMLDivElement;

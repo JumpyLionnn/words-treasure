@@ -12,8 +12,29 @@ console.log("importing packages...");
 const sqlite3 = require("sqlite3").verbose();
 const sqlite = require("sqlite");
 const port = 3300;
-console.log(`Starting web socket server on port ${port}...`);
-const io = require("socket.io")(port);
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http, {
+    cors: {
+        origin: "*",
+    }
+});
+let root = __dirname.slice(0, __dirname.length - 6);
+app.get('/', (req, res) => {
+    console.log(__dirname);
+    let root = __dirname.slice(0, __dirname.length - 6);
+    console.log(root);
+    res.sendFile(root + '/client/index.html');
+});
+app.get('/style.css', (req, res) => {
+    res.sendFile(root + '/client/style.css');
+});
+app.get('/general.css', (req, res) => {
+    res.sendFile(root + '/client/general.css');
+});
+app.get('/main.js', (req, res) => {
+    res.sendFile(root + '/client/main.js');
+});
 const timerOffset = 0;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -68,6 +89,9 @@ function start() {
         });
     });
 }
+http.listen(port, () => {
+    console.log(`listening on *:${port}`);
+});
 start();
 function addWordHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {

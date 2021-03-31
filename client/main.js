@@ -1,5 +1,4 @@
 "use strict";
-const remote = require('electron').remote;
 const mainMenuWindow = document.querySelector("div.mainMenu");
 const howToPlayWindow = document.querySelector("div.howToPlay");
 const hostGameWindow = document.querySelector("div.hostGame");
@@ -276,7 +275,7 @@ howToPlayButton.addEventListener("click", (e) => {
     mainMenuWindow.hidden = true;
 });
 exitButton.addEventListener("click", (e) => {
-    remote.getCurrentWindow().close();
+    window.close();
 });
 const scoreTable = document.getElementById("scoreTable");
 function startScoreWindow(data) {
