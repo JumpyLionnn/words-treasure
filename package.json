@@ -4,7 +4,7 @@
     "description": "a word  game for school",
     "main": "main.js",
     "scripts": {
-        "start": "node server/main.js"
+        "build": "node server/main.js"
     },
     "repository": {
         "type": "git",
