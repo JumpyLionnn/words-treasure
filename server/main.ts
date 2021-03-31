@@ -98,7 +98,7 @@ async function start() {
     });
 }
 
-let port = process.env.PORT || 3000;
+let port = process.env.PORT;
 http.listen(port, () => {
     
     console.log(`listening on *:${port}`);
