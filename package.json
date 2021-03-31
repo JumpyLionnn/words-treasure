@@ -4,7 +4,6 @@
     "description": "a word  game for school",
     "main": "main.js",
     "scripts": {
-        "start": "node server/main.js",
         "launch": "node server/main.js"
     },
     "repository": {
