@@ -2,7 +2,7 @@
     "name": "word-game",
     "version": "1.0.0",
     "description": "a word  game for school",
-    "main": "index.js",
+    "main": "main.js",
     "scripts": {
         "start": "node server/main.js"
     },
