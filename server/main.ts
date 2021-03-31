@@ -15,9 +15,8 @@ const io = require('socket.io')(http, {
 let root = __dirname.slice(0, __dirname.length - 6);
 
 app.get('/', (req: any, res: any) => {
-    console.log(__dirname);
+    console.log("hallo new client");
     let root = __dirname.slice(0, __dirname.length - 6);
-    console.log(root)
     res.sendFile(root + '/client/index.html');
 });
 
