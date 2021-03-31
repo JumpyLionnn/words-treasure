@@ -2,7 +2,7 @@ console.log("importing packages...");
 const sqlite3 = require("sqlite3").verbose();
 const sqlite = require("sqlite");
 
-const port = 3300;
+//const port = 3300;
 //console.log(`Starting web socket server on port ${port}...`);
 const app = require('express')();
 const http = require('http').Server(app);
@@ -98,8 +98,9 @@ async function start() {
     });
 }
 
-
+let port = process.env.PORT || 3000;
 http.listen(port, () => {
+    
     console.log(`listening on *:${port}`);
 });
 
