@@ -38,7 +38,7 @@ const timerOffset = 0;
 
 async function start() {
     const db = await sqlite.open({
-        filename: "./database.db",
+        filename: "./server/database.db",
         driver: sqlite3.Database
     });
 
