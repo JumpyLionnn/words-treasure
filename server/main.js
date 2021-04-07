@@ -22,7 +22,7 @@ let root = __dirname.slice(0, __dirname.length - 6);
 app.get('/', (req, res) => {
     console.log("hallo new client");
     let root = __dirname.slice(0, __dirname.length - 6);
-    res.send("HELLO");
+    res.sendFile(root + '/client/index.html');
 });
 app.get('/style.css', (req, res) => {
     res.sendFile(root + '/client/style.css');
