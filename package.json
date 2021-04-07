@@ -5,7 +5,8 @@
     "main": "main.js",
     "scripts": {
         "start": "node server/main.js",
-        "dev": "nodemon server/main.js"
+        "dev": "nodemon server/main.js",
+        "rebuildDB": "node scripts/buildDB.js"
     },
     "repository": {
         "type": "git",
