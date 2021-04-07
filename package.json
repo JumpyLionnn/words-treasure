@@ -1,10 +1,11 @@
 {
     "name": "word-game",
     "version": "1.0.0",
-    "description": "a word  game for school",
+    "description": "a word game for school",
     "main": "main.js",
     "scripts": {
-        "start": "node server/main.js"
+        "start": "node server/main.js",
+        "dev": "nodemon server/main.js"
     },
     "repository": {
         "type": "git",
