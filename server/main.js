@@ -25,10 +25,10 @@ app.get('/', (req, res) => {
     res.sendFile(root + '/client/index.html');
 });
 app.get('/style.css', (req, res) => {
-    res.sendFile(root + '/client/style.css');
+    res.sendFile(root + '/client/style/style.css');
 });
 app.get('/general.css', (req, res) => {
-    res.sendFile(root + '/client/general.css');
+    res.sendFile(root + '/client/style/general.css');
 });
 app.get('/main.js', (req, res) => {
     res.sendFile(root + '/client/main.js');

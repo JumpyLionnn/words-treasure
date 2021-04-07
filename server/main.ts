@@ -21,11 +21,11 @@ app.get('/', (req: any, res: any) => {
 });
 
 app.get('/style.css', (req: any, res: any) => {
-    res.sendFile(root + '/client/style.css');
+    res.sendFile(root + '/client/style/style.css');
 });
 
 app.get('/general.css', (req: any, res: any) => {
-    res.sendFile(root + '/client/general.css');
+    res.sendFile(root + '/client/style/general.css');
 });
 
 app.get('/main.js', (req: any, res: any) => {
