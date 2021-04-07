@@ -6,7 +6,7 @@ const joinGameWindow = document.querySelector("div.joinGame");
 const waitingRoomWindow = document.querySelector("div.waitingRoom");
 const inGameWindow = document.querySelector("div.inGame");
 const scoreWindow = document.querySelector("div.score");
-let socket = io.connect("http://192.168.100.20:3300/");
+let socket = io.connect("/");
 let playerName;
 const mainMenuButtons = document.querySelectorAll("#mainMenuButton");
 mainMenuButtons.forEach((element) => {
