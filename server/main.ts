@@ -17,7 +17,8 @@ let root = __dirname.slice(0, __dirname.length - 6);
 app.get('/', (req: any, res: any) => {
     console.log("hallo new client");
     let root = __dirname.slice(0, __dirname.length - 6);
-    res.sendFile(root + '/client/index.html');
+    //res.sendFile(root + '/client/index.html');
+    res.send("HELLO");
 });
 
 app.get('/style.css', (req: any, res: any) => {
@@ -100,7 +101,6 @@ async function start() {
 
 let port = process.env.PORT || 3000;
 http.listen(port, () => {
-    
     console.log(`listening on *:${port}`);
 });
 

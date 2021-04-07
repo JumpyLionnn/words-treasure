@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 console.log("importing packages...");
 const sqlite3 = require("sqlite3").verbose();
 const sqlite = require("sqlite");
-const port = 3300;
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http, {
@@ -21,10 +20,9 @@ const io = require('socket.io')(http, {
 });
 let root = __dirname.slice(0, __dirname.length - 6);
 app.get('/', (req, res) => {
-    console.log(__dirname);
+    console.log("hallo new client");
     let root = __dirname.slice(0, __dirname.length - 6);
-    console.log(root);
-    res.sendFile(root + '/client/index.html');
+    res.send("HELLO");
 });
 app.get('/style.css', (req, res) => {
     res.sendFile(root + '/client/style.css');
@@ -39,7 +37,7 @@ const timerOffset = 0;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         const db = yield sqlite.open({
-            filename: "./database.db",
+            filename: "./server/database.db",
             driver: sqlite3.Database
         });
         yield db.get(`CREATE TABLE IF NOT EXISTS games(
@@ -89,6 +87,7 @@ function start() {
         });
     });
 }
+let port = process.env.PORT || 3000;
 http.listen(port, () => {
     console.log(`listening on *:${port}`);
 });
