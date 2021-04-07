@@ -23,6 +23,7 @@ const hostNameTextbox = document.getElementById("hostNameTextbox") as HTMLInputE
 
 hostNameTextbox.addEventListener("input", ()=>{
     let name = hostNameTextbox.value;
+    hostMessage.innerText = "";
     if(name.length > 10 || name.length < 2){
         hostNameTextbox.classList.add("textboxError");
     }
@@ -74,7 +75,7 @@ function createGame(){
     playerName = hostNameTextbox.value;
 
     if(playerName.length > 10 || playerName.length < 2){
-        hostMessage.innerText = "the name length should be in range of 2 - 10 letters";
+        hostMessage.innerText = "The name length should be in range of 2 - 10 letters.";
     }
     else{
         socket.emit("host", {

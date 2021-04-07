@@ -36,7 +36,7 @@
 
     <div class="hostGame window" hidden>
         <div class="center-all hostGameElementsDiv">
-            <label for="">duration</label>
+            <h3>duration</h3>
             <select id="duration" name="Duration">
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -48,7 +48,7 @@
                 <option value="9">9</option>
                 <option value="10">10</option>
             </select>
-            <label for="">max players</label>
+            <h3>max players</h3>
             <select id="maxPlayers" name="Max Players">
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -60,18 +60,19 @@
                 <option value="9">9</option>
                 <option value="10" selected>10</option>
             </select>
+            <h3>difficulty</h3>
             <div class="diffSelection hostGameElement">
                 <button data-diff="easy" class="diffBtn btn">Easy</button>
                 <button data-diff="normal" class="diffBtn btn diffSelected">Normal</button>
                 <button data-diff="hard" class="diffBtn btn">Hard</button>
             </div>
+            <h3>name</h3>
+            <input type="text" name="name" id="hostNameTextbox" class="textBox" placeholder="name">
 
-            <input type="text" name="name" id="hostNameTextbox" class="textBox">
-
-            <div class="hostMessage" id="hostMessage"></div>
+            <p class="hostMessage" id="hostMessage"></p>
 
             <button class="createBtn hostGameElement" id="createBtn">Create</button>
-            <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
+            <button class="mainMenuBtn hostGameElement" id="mainMenuButton">Main Menu</button>
         </div>
     </div>
 

@@ -28,8 +28,19 @@ body {
 
 .hostGameElementsDiv {
     display: grid;
-    grid-template-rows: repeat(8, 1fr);
+    grid-auto-rows: 1fr;
     grid-gap: 10px;
+}
+
+.hostGameElementsDiv h3 {
+    height: fit-content;
+    align-self: end;
+    text-decoration: underline 2px;
+}
+
+.hostGameElementsDiv select {
+    border: black 1px solid;
+    border-radius: 5px;
 }
 
 .diffSelection {
@@ -37,6 +48,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 5px;
+    min-width: 0;
 }
 
 .diffSelected {
@@ -46,7 +58,7 @@ body {
 .nameTextbox {
     width: 100%;
     padding: 5px;
-    border: black 1px solid;
+    border: red 1px solid;
     border-radius: 4px;
     text-align: center;
     line-height: 30px;
@@ -58,19 +70,22 @@ body {
     outline: none;
 }
 
-.textboxError {
-    border: red 1px solid;
+.nameTextbox:not(.textboxError) {
+    border-color: black;
 }
 
-.createBtn {
-    margin: 0 auto;
-    width: 60%;
+.hostMessage {
+    width: fit-content;
+    word-wrap: break-word;
+    color: red;
+    min-width: 0;
+    text-align: center;
 }
 
 .joinGameElementsDiv {
     display: grid;
-    grid-template-rows: repeat(6, 1fr);
     grid-gap: 10px;
+    grid-auto-rows: 1fr;
 }
 
 .message {
