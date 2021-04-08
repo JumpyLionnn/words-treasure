@@ -7,9 +7,13 @@ async function joinHandler(data: any, socket: any, db: any){
     // getting data
     let name: string;
     if(typeof data.name === "string"){
-        name = data.name;
+        name = data.name.trim();
         if(name.length > 10 || name.length < 2){
             socket.emit("joinGameError", {message: "The name length is not in the range of 2 - 10"});
+            return;
+        }
+        if(nameVefication.test(name)){
+            socket.emit("joinGameError", {message: "The name must only have letters, digits or spaces."});
             return;
         }
     }

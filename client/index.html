@@ -91,15 +91,29 @@
     </div>
 
     <div class="waitingRoom window" hidden>
-        <div class="center-all">
+        <div class="center-all waitingRoomElements">
             <h2 class="playersTitle margin-auto">Players</h2>
+            <p id="playersNumber"></p>
             <ul class="players no-format" id="players">
             </ul>
-            <div class="code margin-auto" id="code"></div>
-            <div class="diffDiv" id="diffDiv"></div>
-            <div class="durationDiv" id="durationDiv"></div>
-            <div class="maxPlayersDiv" id="maxPlayersDiv"></div>
-            <div class="waitingMessage" id="waitingMessage"></div>
+            <div class="margin-auto">
+                <span class="code">Code: </span>
+                <span class="code selectable" id="code"></span>
+            </div>
+
+            <div>
+                <div>
+                    <span>Difficulty: </span>
+                    <span class="diffDiv" id="diffDiv"></span>
+                </div>
+
+                <div>
+                    <span>Duration: </span>
+                    <span class="durationDiv" id="durationDiv"></span>
+                </div>
+            </div>
+
+            <p class="message" id="waitingMessage" hidden></p>
             <button class="startGameBtn margin-auto btn" id="startGameBtn" hidden>Start Game</button>
             <button class="disconnectButton" id="disconnectButton">Disconnect</button>
         </div>

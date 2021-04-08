@@ -92,6 +92,7 @@ http.listen(port, () => {
     console.log(`listening on *:${port}`);
 });
 start();
+const nameVefication = /[^a-zA-Z0-9 ]/;
 function addWordHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {
         let player = yield db.get("SELECT * FROM players WHERE id = ?", socket.id);
@@ -224,19 +225,23 @@ function hostHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {
         let player = yield db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
         if (player) {
-            socket.emit("hostGameError", { message: "this client is already in a game" });
+            socket.emit("hostGameError", { message: "this client is already in a game." });
             return;
         }
         let name;
         if (typeof data.name === "string") {
-            name = data.name;
+            name = data.name.trim();
             if (name.length > 10 || name.length < 2) {
-                socket.emit("hostGameError", { message: "The name length is not in the range of 2 - 10" });
+                socket.emit("hostGameError", { message: "The name length is not in the range of 2 - 10." });
+                return;
+            }
+            if (nameVefication.test(name)) {
+                socket.emit("hostGameError", { message: "The name must only have letters, digits or spaces." });
                 return;
             }
         }
         else {
-            socket.emit("hostGameError", { message: "The name is not a string" });
+            socket.emit("hostGameError", { message: "The name is not a string." });
             return;
         }
         let diff;
@@ -287,7 +292,12 @@ function hostHandler(data, socket, db) {
         let game = yield db.get(`SELECT * FROM games WHERE code = ?`, [code]);
         socket.join(game.id);
         db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name]);
-        socket.emit("gameCreated", { code: code });
+        socket.emit("gameCreated", {
+            code,
+            maxPlayers,
+            diff,
+            duration
+        });
     });
 }
 function makeCode(length) {
@@ -308,9 +318,13 @@ function joinHandler(data, socket, db) {
         }
         let name;
         if (typeof data.name === "string") {
-            name = data.name;
+            name = data.name.trim();
             if (name.length > 10 || name.length < 2) {
                 socket.emit("joinGameError", { message: "The name length is not in the range of 2 - 10" });
+                return;
+            }
+            if (nameVefication.test(name)) {
+                socket.emit("joinGameError", { message: "The name must only have letters, digits or spaces." });
                 return;
             }
         }

@@ -2,20 +2,24 @@ async function hostHandler(data: any, socket: any, db: any){
 
     let player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
     if(player){
-        socket.emit("hostGameError", {message: "this client is already in a game"});
+        socket.emit("hostGameError", {message: "this client is already in a game."});
         return;
     }
     // getting data
     let name: string;
     if(typeof data.name === "string"){
-        name = data.name;
+        name = data.name.trim();
         if(name.length > 10 || name.length < 2){
-            socket.emit("hostGameError", {message: "The name length is not in the range of 2 - 10"});
+            socket.emit("hostGameError", {message: "The name length is not in the range of 2 - 10."});
+            return;
+        }
+        if(nameVefication.test(name)){
+            socket.emit("hostGameError", {message: "The name must only have letters, digits or spaces."});
             return;
         }
     }
     else{
-        socket.emit("hostGameError", {message: "The name is not a string"});
+        socket.emit("hostGameError", {message: "The name is not a string."});
         return;
     }
     let diff: string;
@@ -77,7 +81,12 @@ async function hostHandler(data: any, socket: any, db: any){
     socket.join(game.id);
 
     db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name])
-    socket.emit("gameCreated", {code: code});
+    socket.emit("gameCreated", {
+        code,
+        maxPlayers,
+        diff,
+        duration
+    });
 
 }
 

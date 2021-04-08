@@ -23,6 +23,7 @@ const hostNameTextbox = document.getElementById("hostNameTextbox") as HTMLInputE
 
 hostNameTextbox.addEventListener("input", ()=>{
     let name = hostNameTextbox.value;
+    hostNameTextbox.value = name;
     hostMessage.innerText = "";
     if(name.length > 10 || name.length < 2){
         hostNameTextbox.classList.add("textboxError");
@@ -37,8 +38,7 @@ const hostMessage = document.getElementById("hostMessage") as HTMLDivElement;
 const createButton = document.getElementById("createBtn") as HTMLButtonElement;
 
 
-let duration: number;
-let maxPlayers: number;
+
 let diffSelection = "normal";
 
 let hostGameEnterKeyUpdated = false;
@@ -56,9 +56,9 @@ socket.on("gameCreated", (data)=>{
     waitingRoomWindow.hidden = false;
     data.players = [playerName];
 
-    data.diff = diffSelection;
-    data.duration = duration;
-    data.maxPlayers = maxPlayers;
+    data.diff = data.diff;
+    data.duration = data.duration;
+    data.maxPlayers = data.maxPlayers;
     startWaitingRoom(data, true);
 });
 
@@ -70,9 +70,9 @@ function startHostGameWindow(){
 }
 
 function createGame(){
-    duration = durationDropDown.selectedIndex + 2;
-    maxPlayers = maxPlayersDropDown.selectedIndex + 2;
-    playerName = hostNameTextbox.value;
+    let duration = durationDropDown.selectedIndex + 2;
+    let maxPlayers = maxPlayersDropDown.selectedIndex + 2;
+    playerName = hostNameTextbox.value.trim();
 
     if(playerName.length > 10 || playerName.length < 2){
         hostMessage.innerText = "The name length should be in range of 2 - 10 letters.";

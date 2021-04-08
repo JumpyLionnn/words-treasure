@@ -46,6 +46,7 @@ diffButtons.forEach((element) => {
 const hostNameTextbox = document.getElementById("hostNameTextbox");
 hostNameTextbox.addEventListener("input", () => {
     let name = hostNameTextbox.value;
+    hostNameTextbox.value = name;
     hostMessage.innerText = "";
     if (name.length > 10 || name.length < 2) {
         hostNameTextbox.classList.add("textboxError");
@@ -56,8 +57,6 @@ hostNameTextbox.addEventListener("input", () => {
 });
 const hostMessage = document.getElementById("hostMessage");
 const createButton = document.getElementById("createBtn");
-let duration;
-let maxPlayers;
 let diffSelection = "normal";
 let hostGameEnterKeyUpdated = false;
 createButton.addEventListener("click", createGame);
@@ -70,9 +69,9 @@ socket.on("gameCreated", (data) => {
     hostGameWindow.hidden = true;
     waitingRoomWindow.hidden = false;
     data.players = [playerName];
-    data.diff = diffSelection;
-    data.duration = duration;
-    data.maxPlayers = maxPlayers;
+    data.diff = data.diff;
+    data.duration = data.duration;
+    data.maxPlayers = data.maxPlayers;
     startWaitingRoom(data, true);
 });
 function startHostGameWindow() {
@@ -82,9 +81,9 @@ function startHostGameWindow() {
     window.addEventListener("keyup", hostGameKeyUp);
 }
 function createGame() {
-    duration = durationDropDown.selectedIndex + 2;
-    maxPlayers = maxPlayersDropDown.selectedIndex + 2;
-    playerName = hostNameTextbox.value;
+    let duration = durationDropDown.selectedIndex + 2;
+    let maxPlayers = maxPlayersDropDown.selectedIndex + 2;
+    playerName = hostNameTextbox.value.trim();
     if (playerName.length > 10 || playerName.length < 2) {
         hostMessage.innerText = "The name length should be in range of 2 - 10 letters.";
     }
@@ -296,22 +295,28 @@ function startScoreWindow(data) {
         scoreTable.appendChild(tr);
     }
 }
-const codeDiv = document.getElementById("code");
+const playersNumberParagraph = document.getElementById("playersNumber");
 const playersUl = document.getElementById("players");
+const codeDiv = document.getElementById("code");
+const durationDiv = document.getElementById("durationDiv");
+const diffDiv = document.getElementById("diffDiv");
 const waitingMessage = document.getElementById("waitingMessage");
 const startButton = document.getElementById("startGameBtn");
 startButton.addEventListener("click", () => {
     socket.emit("startGame", {});
 });
-const durationDiv = document.getElementById("durationDiv");
-const maxPlayersDiv = document.getElementById("maxPlayersDiv");
-const diffDiv = document.getElementById("diffDiv");
+let maxPlayers;
+let playersNumber = 0;
 socket.on("playerJoined", (data) => {
     const playerLi = document.createElement("li");
     playerLi.innerText = data.name;
+    playersNumber++;
+    playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     playersUl.appendChild(playerLi);
 });
 socket.on("playerLeft", (data) => {
+    playersNumber--;
+    playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     let listElelemnts = playersUl.children;
     for (let i = 0; i < listElelemnts.length; i++) {
         let li = listElelemnts[i];
@@ -336,14 +341,17 @@ function startWaitingRoom(data, host) {
     playersUl.innerHTML = "";
     if (host) {
         startButton.hidden = false;
+        waitingMessage.hidden = false;
     }
     else {
         startButton.hidden = true;
     }
+    maxPlayers = data.maxPlayers;
+    playersNumber += data.players.length;
+    playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     durationDiv.innerText = data.duration + ":00";
-    maxPlayersDiv.innerText = data.maxPlayers;
     diffDiv.innerText = data.diff;
-    codeDiv.innerText = "Code: " + data.code;
+    codeDiv.innerText = data.code;
     for (let i = 0; i < data.players.length; i++) {
         const playerLi = document.createElement("li");
         playerLi.innerText = data.players[i];
