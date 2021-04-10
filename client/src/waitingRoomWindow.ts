@@ -73,7 +73,7 @@ function startWaitingRoom(data: any, host: boolean){
     }
 
     maxPlayers = data.maxPlayers;
-    playersNumber += data.players.length;
+    playersNumber = data.players.length;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
 
     durationDiv.innerText = data.duration + ":00";

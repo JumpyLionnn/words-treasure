@@ -333,7 +333,7 @@ function startWaitingRoom(data, host) {
         startButton.hidden = true;
     }
     maxPlayers = data.maxPlayers;
-    playersNumber += data.players.length;
+    playersNumber = data.players.length;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     durationDiv.innerText = data.duration + ":00";
     diffDiv.innerText = data.diff;
