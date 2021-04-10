@@ -1,5 +1,5 @@
 
-const scoreTable = document.getElementById("scoreTable") as HTMLTableElement;
+const scoreTable = document.querySelector(".scoreTable tbody") as HTMLTableElement;
 
 
 

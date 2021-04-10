@@ -125,23 +125,9 @@ socket.on("addWordError", (data) => {
 });
 socket.on("wordResult", (data) => {
     if (data.correct) {
-        const wordTh = document.createElement("td");
-        wordTh.innerText = data.word;
-        if (currentWordsTable.lastChild) {
-            if (currentWordsTable.lastChild.childNodes.length === 5) {
-                const tr = document.createElement("tr");
-                tr.appendChild(wordTh);
-                currentWordsTable.appendChild(tr);
-            }
-            else {
-                currentWordsTable.lastChild.appendChild(wordTh);
-            }
-        }
-        else {
-            const tr = document.createElement("tr");
-            tr.appendChild(wordTh);
-            currentWordsTable.appendChild(tr);
-        }
+        const div = document.createElement("div");
+        div.innerText = data.word;
+        currentWordsTable.appendChild(div);
     }
     else {
         inGameMessage.innerText = data.message;
@@ -277,7 +263,7 @@ howToPlayButton.addEventListener("click", (e) => {
 exitButton.addEventListener("click", (e) => {
     window.close();
 });
-const scoreTable = document.getElementById("scoreTable");
+const scoreTable = document.querySelector(".scoreTable tbody");
 function startScoreWindow(data) {
     scoreTable.innerHTML = "";
     let scores = data.scores;

@@ -68,3 +68,13 @@ label {
     -ms-user-select: text;
     user-select: text;
 }
+
+table,
+thead,
+tbody,
+th,
+td {
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+}

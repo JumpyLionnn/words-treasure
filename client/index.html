@@ -121,18 +121,33 @@
     </div>
 
     <div class="inGame window" hidden>
-        <div class="timeRemaining" id="timeRemaining"></div>
-        <div class="wordDisplay" id="wordDisplay"></div>
-        <input type="text" name="wordInput" class="wordInput" id="wordInput">
-        <div class="inGameMessage" id="inGameMessage"></div>
-        <button class="submitWord" id="submitWord">Submit</button>
-        <table class="currentWords" id="currentWords"></table>
-        <button class="disconnectButton" id="disconnectButton">Disconnect</button>
+        <div class="inGameElements center-all">
+
+            <div class="timeRemaining" id="timeRemaining"></div>
+            <div class="wordDisplay" id="wordDisplay"></div>
+            <input type="text" name="wordInput" class="wordInput" id="wordInput">
+            <div class="inGameMessage" id="inGameMessage"></div>
+            <button class="submitWord" id="submitWord">Submit</button>
+            <div class="currentWords" id="currentWords"></div>
+            <button class="disconnectButton" id="disconnectButton">Disconnect</button>
+        </div>
     </div>
 
     <div class="score window" hidden>
-        <table class="scoreTable" id="scoreTable"></table>
-        <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
+        <div class="scoreWindowElements center-all">
+            <h2>Scores</h2>
+            <table class="scoreTable" id="scoreTable">
+                <thead>
+                    <tr>
+                        <td>#</td>
+                        <td>Name</td>
+                        <td>Score</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
+        </div>
     </div>
 
 
