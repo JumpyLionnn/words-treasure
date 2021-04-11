@@ -26,6 +26,25 @@ body {
     padding: 10px 0;
 }
 
+.howToPlayScreenElements {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.howToPlayScreenElements h2 {
+    width: fit-content;
+}
+
+.howToPlayScreenElements p {
+    text-align: center;
+}
+
+.howToPlayScreenElements button {
+    width: 40%;
+}
+
 .hostGameElementsDiv {
     display: grid;
     grid-auto-rows: 1fr;
