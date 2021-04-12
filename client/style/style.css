@@ -169,7 +169,9 @@ h3 {
 .currentWords {
     padding: 0;
     display: grid;
-    grid-template-rows: repeat(10, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    font-size: 1.5em;
+    text-align: center;
 }
 
 .scoreWindowElements {

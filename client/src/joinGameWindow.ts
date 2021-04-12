@@ -44,7 +44,7 @@ socket.on("joinedGame", (data: any)=>{
 
 function startJoinGameWindow(){
     codeTextbox.value = "";
-    joinNameTextbox.value = ""
+    joinNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
     joinMessage.innerText = "";
     window.addEventListener("keydown", joinGameKeyDown);
     window.addEventListener("keyup", joinGameKeyUp);
@@ -60,7 +60,7 @@ function joinGame(){
         joinMessage.innerText = "The name length should be in range of 2 -10 characters"
     }
     else{
-        
+        window.localStorage.setItem("word-game-name", playerName);
         socket.emit("join", {
             name: playerName,
             code: code

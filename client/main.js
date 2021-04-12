@@ -75,8 +75,22 @@ socket.on("gameCreated", (data) => {
     startWaitingRoom(data, true);
 });
 function startHostGameWindow() {
-    hostNameTextbox.value = "";
+    hostNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
     hostMessage.innerText = "";
+    const settings = JSON.parse(window.localStorage.getItem("word-game-settings") || "{}");
+    if (settings.duration) {
+        durationDropDown.value = settings.duration;
+    }
+    if (settings.diff) {
+        diffButtons.forEach((element) => {
+            if (element.dataset.diff === settings.diff) {
+                element.classList.add("diffSelected");
+            }
+            else {
+                element.classList.remove("diffSelected");
+            }
+        });
+    }
     window.addEventListener("keydown", hostGameKeyDown);
     window.addEventListener("keyup", hostGameKeyUp);
 }
@@ -88,6 +102,11 @@ function createGame() {
         hostMessage.innerText = "The name length should be in range of 2 - 10 letters.";
     }
     else {
+        window.localStorage.setItem("word-game-settings", JSON.stringify({
+            duration: duration.toString(),
+            diff: diffSelection,
+        }));
+        window.localStorage.setItem("word-game-name", playerName);
         socket.emit("host", {
             duration: duration,
             maxPlayers: maxPlayers,
@@ -212,7 +231,7 @@ socket.on("joinedGame", (data) => {
 });
 function startJoinGameWindow() {
     codeTextbox.value = "";
-    joinNameTextbox.value = "";
+    joinNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
     joinMessage.innerText = "";
     window.addEventListener("keydown", joinGameKeyDown);
     window.addEventListener("keyup", joinGameKeyUp);
@@ -225,6 +244,7 @@ function joinGame() {
         joinMessage.innerText = "The name length should be in range of 2 -10 characters";
     }
     else {
+        window.localStorage.setItem("word-game-name", playerName);
         socket.emit("join", {
             name: playerName,
             code: code
