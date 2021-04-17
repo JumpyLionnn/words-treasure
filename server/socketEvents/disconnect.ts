@@ -21,6 +21,7 @@ async function disconnect(socketId: string, db: any) {
             if(game.host === socketId){
                 await db.run("UPDATE games SET host = ? WHERE id = ?", [players[0].id, game.id])
             }
+            console.log("playerLeft")
             io.to(player.gameId).emit("playerLeft", {name: player.name, host: players[0].name});
         }
     }

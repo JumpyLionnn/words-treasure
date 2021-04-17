@@ -15,7 +15,7 @@ const inGameWindow = document.querySelector("div.inGame") as HTMLDivElement;
 const scoreWindow = document.querySelector("div.score") as HTMLDivElement;
 
 
-
+generateBackground();
 
 
 let socket: Socket = io.connect("/");
@@ -34,9 +34,14 @@ mainMenuButtons.forEach((element)=>{
 const disconnectButtons = document.querySelectorAll("#disconnectButton") as NodeListOf<HTMLButtonElement>;
 disconnectButtons.forEach((element)=>{
     element.addEventListener("click", (e)=>{
-        socket.emit("leave", {});
-        hideAll();
-        mainMenuWindow.hidden = false;
+        displayAlert("Are you sure you want to leave?", "yesno", (result: string) => {
+            if(result === "yes"){
+                socket.emit("leave", {});
+                hideAll();
+                mainMenuWindow.hidden = false;
+            }
+        });
+        
     });
 });
 
@@ -48,3 +53,5 @@ function hideAll(){
     inGameWindow.hidden = true;
     scoreWindow.hidden = true;
 }
+
+

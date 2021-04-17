@@ -45,13 +45,22 @@
 
 .textBox {
     width: 100%;
-    padding: 5px;
-    border: black 1px solid;
     border-radius: 4px;
     text-align: center;
-    line-height: 30px;
-    font-size: 20px;
-    transform: translateX(-5px);
+    font-size: 1.5em;
+    height: fit-content;
+    padding: .2em;
+    transform: translateX(-.3em);
+}
+
+input {
+    border-color: blue;
+    color: blue;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 3pt 1px blue;
 }
 
 label {

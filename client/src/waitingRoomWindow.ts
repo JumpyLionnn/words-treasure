@@ -1,19 +1,19 @@
 /// <reference path="main.ts" />
-//elements
 
 
-//playersNumber
 const playersNumberParagraph = document.getElementById("playersNumber") as HTMLParagraphElement;
 
-const playersUl = document.getElementById("players") as HTMLUListElement;
+const playersList = document.getElementById("players") as HTMLDivElement;
 
-const codeDiv = document.getElementById("code") as HTMLSpanElement;
+const gameCodeInputContainer = document.getElementById("gameCodeInputContainer") as HTMLDivElement;
+
+const gameCodeInput = document.getElementById("gameCodeInput") as HTMLInputElement;
+
+const gameCodeCopyButton = document.getElementById("gameCodeCopyButton") as HTMLButtonElement;
 
 const durationDiv = document.getElementById("durationDiv") as HTMLSpanElement;
 
 const diffDiv = document.getElementById("diffDiv") as HTMLSpanElement;
-
-const waitingMessage = document.getElementById("waitingMessage") as HTMLDivElement;
 
 const startButton = document.getElementById("startGameBtn") as HTMLButtonElement;
 
@@ -21,32 +21,60 @@ startButton.addEventListener("click", ()=>{
     socket.emit("startGame", {});
 });
 
+const hostCrownImage = document.createElement("img");
+hostCrownImage.src = "/crown.png";
+
 
 let maxPlayers: number;
 let playersNumber: number = 0;
 
+gameCodeInputContainer.addEventListener("mouseleave", ()=>{
+    clearSelection();
+});
 
+gameCodeCopyButton.addEventListener("click", ()=>{
+    gameCodeInput.select();
+    gameCodeInput.setSelectionRange(0, 5);
+    document.execCommand("copy");
+    clearSelection();   
+});
 
 socket.on("playerJoined", (data)=>{
-    const playerLi = document.createElement("li");
+    //const playerLi = document.createElement("li");
+    
+    const playerLi = playersList.children[playersNumber] as HTMLLIElement;
     playerLi.innerText = data.name;
-    playersNumber++;
+    playersNumber++;    
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
-    playersUl.appendChild(playerLi);
+
+    startButton.disabled = false;
+    //playersUl.appendChild(playerLi);
 });
 
 socket.on("playerLeft", (data)=>{
+    console.log("player left")
     playersNumber--;
+    console.log(playersNumber);
+    console.log(data.name)
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
-    let listElelemnts = playersUl.children;
+    let listElelemnts = playersList.children;
     for(let i = 0; i < listElelemnts.length; i++){
-        let li = listElelemnts[i] as HTMLLIElement;
-        if(li.innerText === data.name){
-            playersUl.removeChild(listElelemnts[i]);
+        let player = listElelemnts[i] as HTMLDivElement;
+        if(player.innerText === data.name){
+            playersList.removeChild(player);
+            const newEmptyPlayer = document.createElement("div");
+            newEmptyPlayer.innerText = "";
+            playersList.appendChild(newEmptyPlayer);
+        }
+
+        if(player.innerText === playerName && data.host === playerName){
+            startButton.style.visibility = "visible";
+            player.appendChild(hostCrownImage);
+            player.classList.add("hostPlayerNameLi");
         }
     }
-    if(data.host === playerName){
-        startButton.hidden = false;
+    if(playersNumber === 1){
+        startButton.disabled = true;
     }
 });
 
@@ -57,33 +85,62 @@ socket.on("gameStarted", (data)=>{
 });
 
 socket.on("startGameError", (data)=>{
-    waitingMessage.innerText = data.message;
+    displayAlert(data.message);
 });
 
 
 function startWaitingRoom(data: any, host: boolean){
-    waitingMessage.innerText = "";
-    playersUl.innerHTML = "";
+    playersList.innerHTML = "";
     if(host){
-        startButton.hidden = false;
-        waitingMessage.hidden = false;
+        data.host = playerName;
+        startButton.style.visibility = "visible";
+
     }
     else{
-        startButton.hidden = true;
+        startButton.style.visibility = "hidden";
     }
 
     maxPlayers = data.maxPlayers;
     playersNumber = data.players.length;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
 
+    if(playersNumber === 1){
+        startButton.disabled = true;
+    }
+    else{
+        startButton.disabled = false; 
+    }
+
     durationDiv.innerText = data.duration + ":00";
     diffDiv.innerText = data.diff
 
-    codeDiv.innerText = data.code;
+    gameCodeInput.value = data.code;
 
     for(let i = 0; i < data.players.length; i++){
-        const playerLi = document.createElement("li");
+        const playerLi = document.createElement("div");
         playerLi.innerText = data.players[i];
-        playersUl.appendChild(playerLi);
-    } 
+        if(data.host === data.players[i]){
+            playerLi.appendChild(hostCrownImage);
+            playerLi.classList.add("hostPlayerNameLi");
+        }
+        playersList.appendChild(playerLi);
+    }
+    for(let i = 0; i < 30 - data.players.length; i++){
+        const emplyPlayerLi = document.createElement("div");
+        emplyPlayerLi.innerText = "\n";
+        playersList.appendChild(emplyPlayerLi); 
+    }
+}
+
+
+function clearSelection(){
+    if (window.getSelection) {
+        let selection = window.getSelection() as Selection;
+        if (selection.empty) { 
+            selection.empty();
+        }
+        else if (selection.removeAllRanges) { 
+            selection.removeAllRanges();
+        }
+    }
 }

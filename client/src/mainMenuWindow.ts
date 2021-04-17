@@ -4,10 +4,6 @@ const hostGameButton = document.getElementById("hostGameButton") as HTMLButtonEl
 
 const joinGameButton = document.getElementById("joinGameButton") as HTMLButtonElement;
 
-const howToPlayButton = document.getElementById("howToPlayButton") as HTMLButtonElement;
-
-const exitButton = document.getElementById("exitButton") as HTMLButtonElement;
-
 
 
 //main menu buttons events
@@ -23,15 +19,4 @@ joinGameButton.addEventListener("click", (e)=>{
     startJoinGameWindow();
     joinGameWindow.hidden = false;
     mainMenuWindow.hidden = true;
-});
-
-howToPlayButton.addEventListener("click", (e)=>{
-    howToPlayWindow.hidden = false;
-    mainMenuWindow.hidden = true;
-});
-
-
-
-exitButton.addEventListener("click", (e)=>{
-    window.close();
 });

@@ -6,30 +6,22 @@ const codeTextbox = document.getElementById("codeTextbox") as HTMLInputElement;
 
 const joinButton = document.getElementById("joinBtn") as HTMLButtonElement;
 
-const joinMessage = document.getElementById("joinMessage") as HTMLDivElement;
-
 const joinNameTextbox = document.getElementById("joinNameTextbox") as HTMLInputElement;
 
 let joinGameEnterKeyUpdated = false;
 
 joinNameTextbox.addEventListener("input", ()=>{
-    let name = joinNameTextbox.value;
-    if(name.length > 10 || name.length < 2){
-        joinNameTextbox.classList.add("textboxError");
-    }
-    else{
-        joinNameTextbox.classList.remove("textboxError");
-    }
+    joinNameTextbox.value = joinNameTextbox.value.replace(/[^a-zA-Z0-9 ]/g,"");
 });
 
 codeTextbox.addEventListener("input", ()=>{
-    codeTextbox.value = codeTextbox.value.toUpperCase().replace(/[\W_]+/g,"");;
+    codeTextbox.value = codeTextbox.value.toUpperCase().replace(/[^A-Z]+/g,"");
 });
 
 let code: string = "";
 
 socket.on("joinGameError", (data)=>{
-    joinMessage.innerText = data.message;
+    displayAlert(data.message);
 });
 
 socket.on("joinedGame", (data: any)=>{
@@ -45,7 +37,6 @@ socket.on("joinedGame", (data: any)=>{
 function startJoinGameWindow(){
     codeTextbox.value = "";
     joinNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
-    joinMessage.innerText = "";
     window.addEventListener("keydown", joinGameKeyDown);
     window.addEventListener("keyup", joinGameKeyUp);
 }
@@ -56,8 +47,11 @@ function joinGame(){
     playerName = joinNameTextbox.value;
     code = codeTextbox.value;
 
-    if(playerName.length > 10 || playerName.length < 2){
-        joinMessage.innerText = "The name length should be in range of 2 -10 characters"
+    if(playerName.length < 2){
+        displayAlert("The name length should be in range of 2 - 10 characters.");
+    }
+    else if(code.length !== 5){
+        displayAlert("The game you tried to join does not exist.");
     }
     else{
         window.localStorage.setItem("word-game-name", playerName);

@@ -6,8 +6,8 @@ async function addWordHandler(data: any, socket: any, db: any){
     }
     let game = await db.get("SELECT * FROM games WHERE id = ?", [player.gameId]);
 
-    if(game.state === "ended"){
-        socket.emit("addWordError", {message: "The game already ended"});
+    if(game.state !== "started"){
+        socket.emit("addWordError", {message: "The game is not active."});
         return;
     }
 

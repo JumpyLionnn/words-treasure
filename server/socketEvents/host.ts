@@ -39,7 +39,7 @@ async function hostHandler(data: any, socket: any, db: any){
     if(typeof data.maxPlayers === "number"){
         maxPlayers = data.maxPlayers;
         if(maxPlayers > 10 || maxPlayers < 2){
-            socket.emit("hostGameError", {message: "The maxPlayer is not in range of 2 - 10"});
+            socket.emit("hostGameError", {message: "The maxPlayers is not in range of 2 - 10"});
             return;
         }
     }
@@ -80,7 +80,7 @@ async function hostHandler(data: any, socket: any, db: any){
 
     socket.join(game.id);
 
-    db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name])
+    db.run(`INSERT INTO players(id, gameId, name, playAgain) VALUES (?, ?, ?, 0)`, [socket.id, game.id, name])
     socket.emit("gameCreated", {
         code,
         maxPlayers,

@@ -9,7 +9,7 @@ async function joinHandler(data: any, socket: any, db: any){
     if(typeof data.name === "string"){
         name = data.name.trim();
         if(name.length > 10 || name.length < 2){
-            socket.emit("joinGameError", {message: "The name length is not in the range of 2 - 10"});
+            socket.emit("joinGameError", {message: "The name length is not in the range of 2 - 10."});
             return;
         }
         if(nameVefication.test(name)){
@@ -18,7 +18,7 @@ async function joinHandler(data: any, socket: any, db: any){
         }
     }
     else{
-        socket.emit("joinGameError", {message: "The name is not a string"});
+        socket.emit("joinGameError", {message: "The name is not a string."});
         return;
     }
     let game: any;
@@ -26,13 +26,13 @@ async function joinHandler(data: any, socket: any, db: any){
         let code = data.code;
         game = await db.get("SELECT * FROM games WHERE code = ?", [code]);
         if(!game){
-            socket.emit("joinGameError", {message: "The game you tried to join does not exist"});
+            socket.emit("joinGameError", {message: "The game you tried to join does not exist."});
             return;
         }
     }
 
     if(game.state !== "waiting"){
-        socket.emit("joinGameError", {message: "The game you tried to join already started"});
+        socket.emit("joinGameError", {message: "The game you tried to join already started."});
         return;
     }
 
@@ -45,15 +45,15 @@ async function joinHandler(data: any, socket: any, db: any){
     let playerNames: string[] = [name];
     for(let i = 0; i < players.length; i++){
         if(players[i].name === name){
-            socket.emit("joinGameError", {message: "The game you tried to join already has aplayer with the same name"});
+            socket.emit("joinGameError", {message: "The game you tried to join already has a player with the same name"});
             return;
         }
         playerNames.push(players[i].name);
     }
 
-    db.run("INSERT INTO players(id, gameId, name) VALUES (? ,? ,?)", [socket.id, game.id, name]);
+    db.run("INSERT INTO players(id, gameId, name, playAgain) VALUES (? ,? ,?, 0)", [socket.id, game.id, name]);
 
-    let host = await db.get("SELECT name FROM players WHERE id = ?", [game.host])
+    let host = await db.get("SELECT name FROM players WHERE id = ?", [game.host]);
 
     io.to(game.id).emit("playerJoined", {name: name});
     socket.join(game.id);
