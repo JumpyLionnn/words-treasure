@@ -51,6 +51,27 @@ function displayAlert(alertMessage, alertType = "normal", callback) {
     alertText.innerText = alertMessage;
     alertScreen.style.display = "flex";
 }
+const contextMenu = document.getElementById("contextMenu");
+window.addEventListener('contextmenu', (e) => {
+    contextMenu.style.display = "flex";
+    contextMenu.style.top = e.y + "px";
+    contextMenu.style.left = e.x + "px";
+    console.log(e);
+    e.preventDefault();
+}, false);
+window.addEventListener("click", (e) => {
+    if (e.target !== contextMenu) {
+        contextMenu.style.display = "none";
+    }
+});
+const copyButton = document.getElementById("contextMenuCopyButton");
+copyButton.addEventListener("click", () => {
+    document.execCommand("copy");
+});
+const pasteButton = document.getElementById("contextMenuPasteButton");
+pasteButton.addEventListener("click", () => {
+    document.execCommand("paste");
+});
 class Random {
     constructor() {
     }
@@ -76,7 +97,6 @@ class Random {
 }
 const backgroundDiv = document.getElementById("background");
 function generateBackground() {
-    backgroundDiv.style.backgroundColor = Random.choice(backgroundData.backgroundColors);
     backgroundDiv.innerHTML = "";
     const screenWidth = backgroundDiv.clientWidth;
     const screenHeight = backgroundDiv.clientHeight;
@@ -361,6 +381,7 @@ socket.on("joinGameError", (data) => {
     displayAlert(data.message);
 });
 socket.on("joinedGame", (data) => {
+    console.log("joined game");
     window.removeEventListener("keydown", joinGameKeyDown);
     window.removeEventListener("keyup", joinGameKeyUp);
     joinGameWindow.hidden = true;
@@ -376,6 +397,7 @@ function startJoinGameWindow() {
 }
 joinButton.addEventListener("click", joinGame);
 function joinGame() {
+    console.log("join game button clicked");
     playerName = joinNameTextbox.value;
     code = codeTextbox.value;
     if (playerName.length < 2) {
@@ -473,6 +495,8 @@ gameCodeCopyButton.addEventListener("click", () => {
     gameCodeInput.blur();
 });
 socket.on("playerJoined", (data) => {
+    console.log("player joined");
+    console.log(data.name);
     const playerSpan = playersList.children[playersNumber].children[0];
     playerSpan.innerText = data.name;
     playersNumber++;
@@ -511,6 +535,7 @@ socket.on("startGameError", (data) => {
     displayAlert(data.message);
 });
 function startWaitingRoom(data, host) {
+    console.log("starting waiting room");
     playersList.innerHTML = "";
     if (host) {
         data.host = playerName;
@@ -558,6 +583,7 @@ function startWaitingRoom(data, host) {
         emptyPlayerSpan.innerText = "\n";
         playersList.appendChild(emplyPlayerLi);
     }
+    console.log(playersList);
     let dots = "\n";
     setInterval(() => {
         if (dots === "\n") {

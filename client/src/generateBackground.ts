@@ -3,7 +3,6 @@
 const backgroundDiv = document.getElementById("background") as HTMLDivElement;
 
 function generateBackground(){
-    backgroundDiv.style.backgroundColor = Random.choice(backgroundData.backgroundColors);
     backgroundDiv.innerHTML = "";
 
     const screenWidth = backgroundDiv.clientWidth;

@@ -1,0 +1,18 @@
+.contextMenu {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    height: fit-content;
+    width: fit-content;
+    z-index: 3;
+}
+
+.contextMenuButton {
+    margin: 0;
+    border: none;
+    border-bottom: 1px solid black;
+}
+
+.contextMenuButton:last-child {
+    border-bottom: none;
+}

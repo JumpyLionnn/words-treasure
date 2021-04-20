@@ -303,7 +303,7 @@ function hostHandler(data, socket, db) {
         (?, 'waiting', ?, ?, ?, ?, ?);`, [code, socket.id, duration, diff, maxPlayers, word.word]);
         let game = yield db.get(`SELECT * FROM games WHERE code = ?`, [code]);
         socket.join(game.id);
-        db.run(`INSERT INTO players(id, gameId, name, playAgain) VALUES (?, ?, ?, 0)`, [socket.id, game.id, name]);
+        db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name]);
         socket.emit("gameCreated", {
             code,
             maxPlayers,
@@ -370,9 +370,9 @@ function joinHandler(data, socket, db) {
             }
             playerNames.push(players[i].name);
         }
-        db.run("INSERT INTO players(id, gameId, name, playAgain) VALUES (? ,? ,?, 0)", [socket.id, game.id, name]);
+        db.run("INSERT INTO players(id, gameId, name) VALUES (? ,? ,?)", [socket.id, game.id, name]);
         let host = yield db.get("SELECT name FROM players WHERE id = ?", [game.host]);
-        io.to(game.id).emit("playerJoined", { name: name });
+        io.to(game.id).emit("playerJoined", { name });
         socket.join(game.id);
         socket.emit("joinedGame", {
             players: playerNames,
