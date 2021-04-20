@@ -1,12 +1,22 @@
 const alertScreen = document.getElementById("alert") as HTMLDivElement;
 
+alertScreen.addEventListener("click", (e)=>{    
+    if(e.target === alertScreen){
+        alertScreen.style.display = "none";
+        if(alertCallback){
+            alertCallback("no");
+        }
+    }
+    
+});
+
 const alertText = document.getElementById("alertText") as HTMLParagraphElement;
 
 const alertCloseNutton = document.getElementById("alertCloseButton") as HTMLButtonElement;
 
 alertCloseNutton.addEventListener("click", ()=>{
     alertScreen.style.display = "none";
-    if(alertCallback !== null){
+    if(alertCallback){
         alertCallback("no");
     }
 });
@@ -32,7 +42,7 @@ const alertYesButton = document.getElementById("alertYesButton") as HTMLButtonEl
 
 alertYesButton.addEventListener("click", ()=>{
     alertScreen.style.display = "none";
-    if(alertCallback !== null){
+    if(alertCallback){
         alertCallback("yes");
     }
 });

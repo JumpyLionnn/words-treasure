@@ -4,8 +4,8 @@ const wordDisplayDiv = document.getElementById("wordDisplay") as HTMLDivElement;
 
 const wordInput = document.getElementById("wordInput") as HTMLInputElement;
 wordInput.addEventListener("input", ()=>{
-    inGameMessage.innerText = "";
-    wordInput.value = wordInput.value.replace(/[\W_]+/g,"");
+    inGameMessage.innerText = "\n";
+    wordInput.value = wordInput.value.toLowerCase().replace(/[^a-z]+/g,"");
 });
 
 const inGameMessage = document.getElementById("inGameMessage") as HTMLDivElement;
@@ -27,14 +27,27 @@ socket.on("wordResult", (data)=>{
     if(data.correct){
         const div = document.createElement("div");
         div.innerText = data.word;
-        currentWordsTable.appendChild(div);
+        if(currentWordsTable.children.length === 0 || currentWordsTable.children[currentWordsTable.children.length -1].children.length === 10){
+            const column = document.createElement("div");
+            column.classList.add("column");
+            column.appendChild(div);
+            currentWordsTable.appendChild(column);
+        }
+        else{
+            currentWordsTable.children[currentWordsTable.children.length -1].appendChild(div)
+        }
     }
     else{
+        wordInput.classList.add("worng");
+        setTimeout(()=>{
+            wordInput.classList.remove("worng");
+        }, 400);
         inGameMessage.innerText = data.message;
     }
 });
 
 socket.on("ended", (data)=>{
+    console.log("game ended")
     window.removeEventListener("keydown", inGameKeyDown);
     window.removeEventListener("keyup", inGameKeyUp);
     inGameWindow.hidden = true;
@@ -44,7 +57,7 @@ socket.on("ended", (data)=>{
 
 
 function startInGameWindow(data: any){
-    inGameMessage.innerText = "";
+    inGameMessage.innerText = "\n";
     wordInput.value = "";
     currentWordsTable.innerHTML = "";
 
@@ -61,7 +74,6 @@ function startInGameWindow(data: any){
 
         if(timeRemaining === 0){
             clearInterval(timer);
-            window.removeEventListener("keydown", submitWord);
         }
 
         if(seconds < 10){
@@ -77,6 +89,8 @@ function submitWord(){
     wordInput.focus();
     socket.emit("addWord", {word: wordInput.value});
     wordInput.value = "";
+
+    
 }
 
 
@@ -86,7 +100,6 @@ function inGameKeyDown(e: any){
         submitWord();
     }
 }
-
 
 function inGameKeyUp(e: any){
     if(e.key === "Enter"){

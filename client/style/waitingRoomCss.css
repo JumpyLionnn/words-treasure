@@ -1,0 +1,181 @@
+.waitingRoom {
+    color: white;
+}
+
+.waitingRoomComponents {
+    display: grid;
+    grid-template-rows: 1fr 8fr 1fr;
+    width: 30%;
+}
+
+.gameProperties {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 1.5em;
+}
+
+.gameProperties div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: .5em;
+    border-radius: .5em;
+    background-color: rgba(80, 205, 250, .8);
+}
+
+.waitingRoomElements {
+    display: flex;
+    flex-direction: column;
+}
+
+.playersTitle {
+    height: fit-content;
+    font-size: 2.5em;
+    background-color: rgba(80, 205, 250, .8);
+    border-radius: .5em .5em 0 0;
+    padding: .3em;
+}
+
+.playersNumber {
+    font-size: 1.5em;
+    background-color: rgba(80, 205, 250, .8);
+    border-radius: 0 0 .5em .5em;
+    padding: .3em 1em;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.players {
+    text-align: center;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-column-gap: 1em;
+    background-color: rgba(80, 205, 250, .8);
+    border-radius: .5em;
+    padding: .3em;
+}
+
+.players div {
+    font-size: 1.2em;
+}
+
+.hostPlayerNameLi {
+    flex-direction: column;
+    align-items: center !important;
+}
+
+.playerSlot {
+    border-bottom: 1px white solid;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+}
+
+.playerSlot span {
+    margin-top: auto;
+}
+
+.players div {
+    padding: .65em 0;
+}
+
+.players div img {
+    transform: translateY(.2em);
+    width: 1.6em;
+    font-size: 1em;
+}
+
+.startGameBtn {
+    padding: .5em 1em;
+    visibility: hidden;
+}
+
+.startGameBtn:disabled:hover {
+    cursor: default;
+}
+
+.toolTip {
+    visibility: hidden;
+    width: fit-content;
+    background-color: #50cdfa;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    border: #fff 2px solid;
+    padding: .2em;
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    transform: translate(-50%, -3em);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.toolTip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -.5em;
+    border-width: .5em;
+    border-style: solid;
+    border-color: #fff transparent transparent transparent;
+}
+
+.startGameBtn:hover:disabled .toolTip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.gameCode {
+    width: fit-content;
+    margin: .5em auto;
+}
+
+.gameCodeInputContainer {
+    position: relative;
+    float: left;
+}
+
+.gameCodeInputContainer:hover .gameCodeInput {
+    color: blue;
+}
+
+.gameCodeInputContainer:hover .gameCodeOverlay {
+    visibility: hidden;
+}
+
+.gameCodeInput {
+    font-size: 1.2em;
+    text-align: center;
+    color: transparent;
+    border-radius: .2em 0 0 .2em;
+}
+
+.gameCodeOverlay {
+    position: absolute;
+    z-index: 1;
+    color: blue;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: fit-content;
+}
+
+.gameCodeInput:focus {
+    box-shadow: none;
+}
+
+.gameCodeOverlay {
+    display: inline-block;
+}
+
+.gameCodeCopyButton {
+    border-left: none;
+    border-radius: 0 .2em .2em 0;
+    margin: 0;
+    float: left;
+    padding: 0 .3em;
+}

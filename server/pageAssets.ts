@@ -23,3 +23,7 @@ app.get('/favicon.ico', (req: any, res: any) => {
 app.get('/crown.png', (req: any, res: any) => {
     res.sendFile(root + '/client/assets/crown2.png');
 });
+
+app.get('/min.css', (req: any, res: any) => {
+    res.sendFile(root + '/client/style.min.css');
+});

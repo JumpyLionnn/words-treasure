@@ -1,10 +1,18 @@
 "use strict";
 const alertScreen = document.getElementById("alert");
+alertScreen.addEventListener("click", (e) => {
+    if (e.target === alertScreen) {
+        alertScreen.style.display = "none";
+        if (alertCallback) {
+            alertCallback("no");
+        }
+    }
+});
 const alertText = document.getElementById("alertText");
 const alertCloseNutton = document.getElementById("alertCloseButton");
 alertCloseNutton.addEventListener("click", () => {
     alertScreen.style.display = "none";
-    if (alertCallback !== null) {
+    if (alertCallback) {
         alertCallback("no");
     }
 });
@@ -23,7 +31,7 @@ alertNoButton.addEventListener("click", () => {
 const alertYesButton = document.getElementById("alertYesButton");
 alertYesButton.addEventListener("click", () => {
     alertScreen.style.display = "none";
-    if (alertCallback !== null) {
+    if (alertCallback) {
         alertCallback("yes");
     }
 });
@@ -132,6 +140,14 @@ const scoreWindow = document.querySelector("div.score");
 generateBackground();
 let socket = io.connect("/");
 let playerName;
+console.log("%cHold up!%c\n\nDo not enter or paste anything here. If someone told you to paste or enter something here, they are most likely trying to hack and/or scam you.", "background-color: #e03c28; color: #ffffff; font-size: 2.5em; padding: .25em .5em;", "font-size: 1.25em;");
+socket.on("disconnect", () => {
+    if (mainMenuWindow.hidden) {
+        displayAlert("You disconnected.");
+        hideAll();
+        mainMenuWindow.hidden = false;
+    }
+});
 const mainMenuButtons = document.querySelectorAll("#mainMenuButton");
 mainMenuButtons.forEach((element) => {
     element.addEventListener("click", (e) => {
@@ -249,8 +265,8 @@ const timeRemainingDiv = document.getElementById("timeRemaining");
 const wordDisplayDiv = document.getElementById("wordDisplay");
 const wordInput = document.getElementById("wordInput");
 wordInput.addEventListener("input", () => {
-    inGameMessage.innerText = "";
-    wordInput.value = wordInput.value.replace(/[\W_]+/g, "");
+    inGameMessage.innerText = "\n";
+    wordInput.value = wordInput.value.toLowerCase().replace(/[^a-z]+/g, "");
 });
 const inGameMessage = document.getElementById("inGameMessage");
 const submitWordBtn = document.getElementById("submitWord");
@@ -265,13 +281,26 @@ socket.on("wordResult", (data) => {
     if (data.correct) {
         const div = document.createElement("div");
         div.innerText = data.word;
-        currentWordsTable.appendChild(div);
+        if (currentWordsTable.children.length === 0 || currentWordsTable.children[currentWordsTable.children.length - 1].children.length === 10) {
+            const column = document.createElement("div");
+            column.classList.add("column");
+            column.appendChild(div);
+            currentWordsTable.appendChild(column);
+        }
+        else {
+            currentWordsTable.children[currentWordsTable.children.length - 1].appendChild(div);
+        }
     }
     else {
+        wordInput.classList.add("worng");
+        setTimeout(() => {
+            wordInput.classList.remove("worng");
+        }, 400);
         inGameMessage.innerText = data.message;
     }
 });
 socket.on("ended", (data) => {
+    console.log("game ended");
     window.removeEventListener("keydown", inGameKeyDown);
     window.removeEventListener("keyup", inGameKeyUp);
     inGameWindow.hidden = true;
@@ -279,7 +308,7 @@ socket.on("ended", (data) => {
     startScoreWindow(data);
 });
 function startInGameWindow(data) {
-    inGameMessage.innerText = "";
+    inGameMessage.innerText = "\n";
     wordInput.value = "";
     currentWordsTable.innerHTML = "";
     wordDisplayDiv.innerText = data.word;
@@ -292,7 +321,6 @@ function startInGameWindow(data) {
         let seconds = timeRemaining % 60;
         if (timeRemaining === 0) {
             clearInterval(timer);
-            window.removeEventListener("keydown", submitWord);
         }
         if (seconds < 10) {
             timeRemainingDiv.innerText = Math.floor(timeRemaining / 60) + ":0" + seconds;
@@ -378,14 +406,24 @@ function joinGameKeyUp(e) {
 const hostGameButton = document.getElementById("hostGameButton");
 const joinGameButton = document.getElementById("joinGameButton");
 hostGameButton.addEventListener("click", (e) => {
-    startHostGameWindow();
-    hostGameWindow.hidden = false;
-    mainMenuWindow.hidden = true;
+    if (socket.disconnected) {
+        displayAlert("You cannot host a game since you are not connected to the server.");
+    }
+    else {
+        startHostGameWindow();
+        hostGameWindow.hidden = false;
+        mainMenuWindow.hidden = true;
+    }
 });
 joinGameButton.addEventListener("click", (e) => {
-    startJoinGameWindow();
-    joinGameWindow.hidden = false;
-    mainMenuWindow.hidden = true;
+    if (socket.disconnected) {
+        displayAlert("You cannot join a game since you are not connected to the server.");
+    }
+    else {
+        startJoinGameWindow();
+        joinGameWindow.hidden = false;
+        mainMenuWindow.hidden = true;
+    }
 });
 const scoreTable = document.querySelector(".scoreTable tbody");
 function startScoreWindow(data) {
@@ -397,7 +435,12 @@ function startScoreWindow(data) {
         placeTd.innerText = (i + 1).toString();
         tr.appendChild(placeTd);
         const nameTd = document.createElement("td");
-        nameTd.innerText = scores[i].name;
+        if (scores[i].name === playerName) {
+            nameTd.innerText = scores[i].name + "(you)";
+        }
+        else {
+            nameTd.innerText = scores[i].name;
+        }
         tr.appendChild(nameTd);
         const scoreTd = document.createElement("td");
         scoreTd.innerText = scores[i].score;
@@ -425,31 +468,29 @@ gameCodeInputContainer.addEventListener("mouseleave", () => {
 });
 gameCodeCopyButton.addEventListener("click", () => {
     gameCodeInput.select();
-    gameCodeInput.setSelectionRange(0, 5);
     document.execCommand("copy");
     clearSelection();
+    gameCodeInput.blur();
 });
 socket.on("playerJoined", (data) => {
-    const playerLi = playersList.children[playersNumber];
-    playerLi.innerText = data.name;
+    const playerSpan = playersList.children[playersNumber].children[0];
+    playerSpan.innerText = data.name;
     playersNumber++;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     startButton.disabled = false;
 });
 socket.on("playerLeft", (data) => {
-    console.log("player left");
     playersNumber--;
-    console.log(playersNumber);
-    console.log(data.name);
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     let listElelemnts = playersList.children;
     for (let i = 0; i < listElelemnts.length; i++) {
         let player = listElelemnts[i];
         if (player.innerText === data.name) {
-            playersList.removeChild(player);
-            const newEmptyPlayer = document.createElement("div");
-            newEmptyPlayer.innerText = "";
-            playersList.appendChild(newEmptyPlayer);
+            player.innerHTML = "";
+            const playerSpan = document.createElement("span");
+            player.appendChild(playerSpan);
+            playerSpan.innerText = "\n";
+            player.classList.remove("hostPlayerNameLi");
         }
         if (player.innerText === playerName && data.host === playerName) {
             startButton.style.visibility = "visible";
@@ -492,18 +533,46 @@ function startWaitingRoom(data, host) {
     gameCodeInput.value = data.code;
     for (let i = 0; i < data.players.length; i++) {
         const playerLi = document.createElement("div");
-        playerLi.innerText = data.players[i];
         if (data.host === data.players[i]) {
             playerLi.appendChild(hostCrownImage);
             playerLi.classList.add("hostPlayerNameLi");
         }
+        const playerNameSpan = document.createElement("span");
+        if (data.players[i] === playerName) {
+            playerNameSpan.innerText = data.players[i] + "(you)";
+        }
+        else {
+            playerNameSpan.innerText = data.players[i];
+        }
+        playerLi.appendChild(playerNameSpan);
+        playerLi.classList.add("playerSlot");
         playersList.appendChild(playerLi);
     }
     for (let i = 0; i < 30 - data.players.length; i++) {
         const emplyPlayerLi = document.createElement("div");
-        emplyPlayerLi.innerText = "\n";
+        const emptyPlayerSpan = document.createElement("span");
+        emplyPlayerLi.appendChild(emptyPlayerSpan);
+        if (maxPlayers > i + data.players.length) {
+            emplyPlayerLi.classList.add("playerSlot");
+        }
+        emptyPlayerSpan.innerText = "\n";
         playersList.appendChild(emplyPlayerLi);
     }
+    let dots = "\n";
+    setInterval(() => {
+        if (dots === "\n") {
+            dots = ".";
+        }
+        else if (dots.length < 3) {
+            dots += ".";
+        }
+        else {
+            dots = "\n";
+        }
+        for (let i = playersNumber; i < maxPlayers; i++) {
+            playersList.children[i].children[0].innerText = dots;
+        }
+    }, 500);
 }
 function clearSelection() {
     if (window.getSelection) {

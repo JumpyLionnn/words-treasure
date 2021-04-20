@@ -99,6 +99,9 @@ app.get('/favicon.ico', (req, res) => {
 app.get('/crown.png', (req, res) => {
     res.sendFile(root + '/client/assets/crown2.png');
 });
+app.get('/min.css', (req, res) => {
+    res.sendFile(root + '/client/style.min.css');
+});
 const nameVefication = /[^a-zA-Z0-9 ]/;
 function addWordHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -460,6 +463,7 @@ function startGameHandler(data, socket, db) {
             socket.emit("startGameError", { message: "The game already started" });
             return;
         }
+        let gameId = game.id;
         let players = yield db.all("SELECT * FROM Players WHERE gameId = ?", [game.id]);
         if (players.length === 1) {
             socket.emit("startGameError", { message: "You can not start the game with only 1 player" });
@@ -467,9 +471,10 @@ function startGameHandler(data, socket, db) {
         }
         db.run("UPDATE games SET state = 'started' WHERE host = ?", [socket.id]);
         db.run("UPDATE games SET startTime = ? WHERE host = ?", [Math.floor(Date.now() / 1000), socket.id]);
-        setTimeout(() => {
+        setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+            let game = yield db.get("SELECT * FROM games WHERE id = ?", [gameId]);
             endGame(game, db);
-        }, (game.duration * 60 + timerOffset) * 1000);
+        }), (game.duration * 60 + timerOffset) * 1000);
         io.to(game.id).emit("gameStarted", {
             word: game.word,
             duration: game.duration

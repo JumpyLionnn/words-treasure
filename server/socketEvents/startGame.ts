@@ -8,6 +8,7 @@ async function startGameHandler(data: any, socket: any, db: any){
         socket.emit("startGameError", {message: "The game already started"});
         return;
     }
+    let gameId = game.id;
     let players = await db.all("SELECT * FROM Players WHERE gameId = ?", [game.id]);
 
     if(players.length === 1){
@@ -18,7 +19,8 @@ async function startGameHandler(data: any, socket: any, db: any){
     db.run("UPDATE games SET state = 'started' WHERE host = ?", [socket.id]);
 
     db.run("UPDATE games SET startTime = ? WHERE host = ?", [Math.floor(Date.now() / 1000),socket.id]);
-    setTimeout(()=>{
+    setTimeout( async ()=>{
+        let game = await db.get("SELECT * FROM games WHERE id = ?", [gameId]);
         endGame(game, db);
     }, (game.duration * 60 + timerOffset) * 1000);
 

@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="min.css">
+    <!--
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="general.css">
+    -->
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
@@ -150,51 +152,64 @@
     </div>
 
     <div class="waitingRoom window" hidden>
-        <div class="center-all waitingRoomElements">
-            <h2 class="playersTitle margin-auto">Players</h2>
-
-            <div class="players" id="players">
-            </div>
-
-
-            <p id="playersNumber" class="playersNumber"></p>
-            <button class="startGameBtn margin-auto" id="startGameBtn" disabled>
-                <span class="toolTip">You can not play alone.</span>
-                Start Game
-            </button>
-            <div class="gameCode">
-                <div class="gameCodeInputContainer" id="gameCodeInputContainer">
-                    <input type="text" name="" id="gameCodeInput" class="gameCodeInput" readonly>
-                    <div class="gameCodeOverlay">Hover to reveal the code!</div>
+        <div class="waitingRoomComponents center-all">
+            <div class="gameProperties">
+                <div>
+                    <span>Difficulty: </span>
+                    <span class="diffDiv" id="diffDiv"></span>
                 </div>
-                <button class="gameCodeCopyButton" id="gameCodeCopyButton">Copy</button>
+
+                <div>
+                    <span>Duration: </span>
+                    <span class="durationDiv" id="durationDiv"></span>
+                </div>
             </div>
+            <div class="waitingRoomElements">
+
+                <h2 class="playersTitle margin-auto">Players</h2>
+
+                <div class="players" id="players">
+                </div>
+
+
+                <p id="playersNumber" class="playersNumber"></p>
+                <button class="startGameBtn margin-auto" id="startGameBtn" disabled>
+                    <span class="toolTip">
+                        You can not play alone.
+                    </span>
+                    Start Game
+                </button>
+                <div class="gameCode">
+                    <div class="gameCodeInputContainer" id="gameCodeInputContainer">
+                        <input type="text" name="" id="gameCodeInput" class="gameCodeInput" readonly>
+                        <div class="gameCodeOverlay">Hover to reveal the code!</div>
+                    </div>
+                    <button class="gameCodeCopyButton" id="gameCodeCopyButton">Copy</button>
+                </div>
+            </div>
+            <div></div>
         </div>
         <button class="disconnectButton" id="disconnectButton">Leave</button>
-        <div>
-            <div>
-                <span>Difficulty: </span>
-                <span class="diffDiv" id="diffDiv"></span>
-            </div>
-
-            <div>
-                <span>Duration: </span>
-                <span class="durationDiv" id="durationDiv"></span>
-            </div>
-        </div>
     </div>
 
     <div class="inGame window" hidden>
-        <div class="inGameElements center-all">
-
-            <div class="timeRemaining" id="timeRemaining"></div>
-            <div class="wordDisplay" id="wordDisplay"></div>
-            <input type="text" name="wordInput" class="wordInput" id="wordInput">
-            <div class="inGameMessage" id="inGameMessage"></div>
-            <button class="submitWord" id="submitWord">Submit</button>
-            <div class="currentWords" id="currentWords"></div>
-            <button class="disconnectButton" id="disconnectButton">Leave</button>
+        <div class="inGameElements center-h">
+            <div class="inGameInputs">
+                <div class="timeRemaining" id="timeRemaining"></div>
+                <div class="wordDisplay" id="wordDisplay"></div>
+                <input type="text" name="wordInput" class="wordInput" id="wordInput" autocomplete="off">
+                <button class="submitWord" id="submitWord">Submit</button>
+                <div class="message" id="inGameMessage"></div>
+            </div>
+            <div class="currentWords" id="currentWords">
+                <div class="column">
+                    <div>
+                        <div></div>
+                    </div>
+                </div>
+            </div>
         </div>
+        <button class="disconnectButton" id="disconnectButton">Leave</button>
     </div>
 
     <div class="score window" hidden>
