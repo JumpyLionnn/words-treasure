@@ -34,37 +34,34 @@ gameCodeInputContainer.addEventListener("mouseleave", ()=>{
 
 gameCodeCopyButton.addEventListener("click", ()=>{
     gameCodeInput.select();
-    gameCodeInput.setSelectionRange(0, 5);
+    //gameCodeInput.setSelectionRange(0, 5);
     document.execCommand("copy");
-    clearSelection();   
+    clearSelection();
+    gameCodeInput.blur();
+     
 });
 
 socket.on("playerJoined", (data)=>{
-    //const playerLi = document.createElement("li");
-    
-    const playerLi = playersList.children[playersNumber] as HTMLLIElement;
-    playerLi.innerText = data.name;
+    const playerSpan = playersList.children[playersNumber].children[0] as HTMLLIElement;
+    playerSpan.innerText = data.name;
     playersNumber++;    
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
 
     startButton.disabled = false;
-    //playersUl.appendChild(playerLi);
 });
 
 socket.on("playerLeft", (data)=>{
-    console.log("player left")
     playersNumber--;
-    console.log(playersNumber);
-    console.log(data.name)
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     let listElelemnts = playersList.children;
     for(let i = 0; i < listElelemnts.length; i++){
-        let player = listElelemnts[i] as HTMLDivElement;
+        let player = listElelemnts[i] as HTMLDivElement;    
         if(player.innerText === data.name){
-            playersList.removeChild(player);
-            const newEmptyPlayer = document.createElement("div");
-            newEmptyPlayer.innerText = "";
-            playersList.appendChild(newEmptyPlayer);
+            player.innerHTML = "";
+            const playerSpan = document.createElement("span");
+            player.appendChild(playerSpan);
+            playerSpan.innerText = "\n";
+            player.classList.remove("hostPlayerNameLi");
         }
 
         if(player.innerText === playerName && data.host === playerName){
@@ -118,18 +115,47 @@ function startWaitingRoom(data: any, host: boolean){
 
     for(let i = 0; i < data.players.length; i++){
         const playerLi = document.createElement("div");
-        playerLi.innerText = data.players[i];
+         
         if(data.host === data.players[i]){
             playerLi.appendChild(hostCrownImage);
             playerLi.classList.add("hostPlayerNameLi");
         }
+        const playerNameSpan = document.createElement("span");
+        if(data.players[i] === playerName){
+            playerNameSpan.innerText = data.players[i] + "(you)";
+        }
+        else{
+            playerNameSpan.innerText = data.players[i];
+        }
+        playerLi.appendChild(playerNameSpan);
+        playerLi.classList.add("playerSlot");
         playersList.appendChild(playerLi);
     }
     for(let i = 0; i < 30 - data.players.length; i++){
         const emplyPlayerLi = document.createElement("div");
-        emplyPlayerLi.innerText = "\n";
+        const emptyPlayerSpan = document.createElement("span");
+        emplyPlayerLi.appendChild(emptyPlayerSpan);
+        if(maxPlayers > i + data.players.length){
+            emplyPlayerLi.classList.add("playerSlot");
+        }
+        emptyPlayerSpan.innerText = "\n";
         playersList.appendChild(emplyPlayerLi); 
     }
+    let dots = "\n";
+    setInterval(()=>{
+        if(dots === "\n"){
+            dots = "."
+        }
+        else if(dots.length < 3){
+            dots += ".";
+        }
+        else{
+            dots = "\n"
+        }
+        for(let i = playersNumber; i < maxPlayers; i++){
+            (playersList.children[i].children[0] as HTMLSpanElement).innerText = dots;
+        }
+    }, 500);
 }
 
 
