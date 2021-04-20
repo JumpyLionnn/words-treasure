@@ -1,4 +1,4 @@
-
+/*
 const contextMenu = document.getElementById("contextMenu") as HTMLDivElement;
 
 
@@ -6,7 +6,6 @@ window.addEventListener('contextmenu', (e: MouseEvent) => {
     contextMenu.style.display = "flex";
     contextMenu.style.top = e.y + "px";
     contextMenu.style.left = e.x + "px";
-    console.log(e);
     e.preventDefault(); 
   }, false);
 
@@ -30,3 +29,4 @@ const pasteButton = document.getElementById("contextMenuPasteButton") as HTMLBut
 pasteButton.addEventListener("click", ()=>{
     document.execCommand("paste");
 });
+*/

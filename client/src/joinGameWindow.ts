@@ -25,7 +25,6 @@ socket.on("joinGameError", (data)=>{
 });
 
 socket.on("joinedGame", (data: any)=>{
-    console.log("joined game");
     window.removeEventListener("keydown", joinGameKeyDown);
     window.removeEventListener("keyup", joinGameKeyUp);
     joinGameWindow.hidden = true;
@@ -45,7 +44,6 @@ function startJoinGameWindow(){
 joinButton.addEventListener("click", joinGame);
 
 function joinGame(){
-    console.log("join game button clicked");
     playerName = joinNameTextbox.value;
     code = codeTextbox.value;
 

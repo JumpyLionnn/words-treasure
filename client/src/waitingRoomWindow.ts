@@ -42,8 +42,6 @@ gameCodeCopyButton.addEventListener("click", ()=>{
 });
 
 socket.on("playerJoined", (data)=>{
-    console.log("player joined");
-    console.log(data.name);
     const playerSpan = playersList.children[playersNumber].children[0] as HTMLLIElement;
     playerSpan.innerText = data.name;
     playersNumber++;    
@@ -89,7 +87,6 @@ socket.on("startGameError", (data)=>{
 
 
 function startWaitingRoom(data: any, host: boolean){
-    console.log("starting waiting room");
     playersList.innerHTML = "";
     if(host){
         data.host = playerName;
@@ -144,7 +141,6 @@ function startWaitingRoom(data: any, host: boolean){
         emptyPlayerSpan.innerText = "\n";
         playersList.appendChild(emplyPlayerLi); 
     }
-    console.log(playersList);
     let dots = "\n";
     setInterval(()=>{
         if(dots === "\n"){
