@@ -45,13 +45,25 @@
 
 .textBox {
     width: 100%;
-    padding: 5px;
-    border: black 1px solid;
     border-radius: 4px;
     text-align: center;
-    line-height: 30px;
-    font-size: 20px;
-    transform: translateX(-5px);
+    font-size: 1.5em;
+    height: fit-content;
+    padding: .2em;
+    transform: translateX(-.3em);
+}
+
+input {
+    border-color: blue;
+    color: blue;
+}
+
+input:focus {
+    outline: none;
+}
+
+input:focus:not(.worng) {
+    box-shadow: 0 0 3pt 1px blue;
 }
 
 label {
@@ -74,7 +86,7 @@ thead,
 tbody,
 th,
 td {
-    border: 1px solid black;
+    border: 1px solid white;
     margin: 0;
     padding: 0;
 }

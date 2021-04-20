@@ -1,0 +1,1 @@
+Find the treasure of the grand words by writing as many words as you can that all of their letters are in the grand word in the time limit.

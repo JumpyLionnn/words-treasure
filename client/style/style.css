@@ -1,7 +1,13 @@
+* {
+    font-family: Comic Sans MS, Comic Sans, cursive;
+}
+
 html,
 body {
     width: 100%;
     height: 100%;
+    margin: 0;
+    overflow: hidden;
 }
 
 .window {
@@ -9,80 +15,51 @@ body {
     height: 100%;
 }
 
-.menuButtonsDiv {
-    width: 30%;
-    margin: 0 auto;
+button {
+    background-color: #3E9DD1;
+    border-color: blue;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: white;
+    border-radius: .2em;
+    margin: .5em 0;
 }
 
-.menuBtn {
-    display: block;
-    width: 100%;
-    min-height: 20px;
-    max-height: 100px;
-    line-height: 100%;
-    height: auto;
-    margin: 10px 0;
-    font-size: 2vw;
-    padding: 10px 0;
+button:disabled {
+    background-color: rgba(62, 157, 209, .5);
+    border-color: rgba(0, 0, 255, .5);
+    color: rgba(255, 255, 255, .5);
+    cursor: default;
 }
 
-.howToPlayScreenElements {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+button:hover {
+    cursor: pointer;
 }
 
-.howToPlayScreenElements h2 {
-    width: fit-content;
+button:active {
+    background-color: #54A5D3;
 }
 
-.howToPlayScreenElements p {
-    text-align: center;
+button:focus {
+    outline: none;
+    border-color: blue;
 }
 
-.howToPlayScreenElements button {
-    width: 40%;
-}
-
-.hostGameElementsDiv {
-    display: grid;
-    grid-auto-rows: 1fr;
-    grid-gap: 10px;
+.disconnectButton {
+    margin: 1em;
+    padding: .3em 1em;
 }
 
 h3 {
     height: fit-content;
     align-self: end;
-    text-decoration: underline 2px;
-}
-
-.hostGameElementsDiv select {
-    border: black 1px solid;
-    border-radius: 5px;
-}
-
-.diffSelection {
-    text-align: center;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 5px;
-    min-width: 0;
-}
-
-.diffSelected {
-    border: 3px solid black;
-}
-
-.nameTextbox {
-    width: calc(100% - 10px);
-    padding: 5px;
-    border: red 1px solid;
-    border-radius: 4px;
-    text-align: center;
-    line-height: 30px;
-    font-size: 20px;
-    transform: translateX(-5px);
+    color: white;
+    font-size: 1.8em;
+    font-weight: 800;
+    background-color: rgba(80, 205, 250, .8);
+    border-radius: .5em;
+    width: fit-content;
+    padding: .3em;
 }
 
 .nameTextbox:focus {
@@ -93,137 +70,14 @@ h3 {
     border-color: black;
 }
 
-.hostMessage {
-    width: fit-content;
-    word-wrap: break-word;
-    color: red;
-    min-width: 0;
-    text-align: center;
+@media only screen and (max-width: 1300px) {
+    * {
+        font-size: 15px;
+    }
 }
 
-.joinGameElementsDiv {
-    display: grid;
-    grid-gap: 10px;
-    grid-auto-rows: 1fr;
-}
-
-.message {
-    color: red;
-}
-
-.waitingRoom {
-    text-align: center;
-}
-
-.waitingRoomElements {
-    display: grid;
-    grid-gap: 10px;
-    grid-template-rows: repeat(5, 1fr);
-}
-
-.playersTitle {
-    height: fit-content;
-}
-
-.players {
-    text-align: center;
-}
-
-.players li {
-    margin: 5px 0;
-}
-
-.code {
-    margin: 10px;
-    text-align: center;
-    height: fit-content;
-}
-
-.inGameElements {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.timeRemaining {
-    font-size: 2em;
-    width: fit-content;
-}
-
-.wordDisplay {
-    font-size: 2em;
-    width: fit-content;
-}
-
-.wordInput {
-    border-color: 1px black solid;
-    border-radius: 5px;
-    padding: 1em;
-    line-height: 1.2em;
-}
-
-.submitWord {
-    padding: 1em;
-}
-
-.currentWords {
-    padding: 0;
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
-    font-size: 1.5em;
-    text-align: center;
-}
-
-.scoreWindowElements {
-    display: flex;
-    flex-direction: column;
-}
-
-.scoreWindowElements h2 {
-    width: 100%;
-    margin: 0;
-    text-align: center;
-    font-size: 2em;
-}
-
-.scoreTable {
-    text-align: center;
-    width: 100%;
-    border: 1px solid black;
-    margin-block-end: .5em;
-    margin-block-start: .5em;
-}
-
-.scoreTable thead {
-    font-size: 1.125em;
-    margin: 0;
-}
-
-.scoreTable tbody {
-    margin: 0;
-}
-
-.scoreTable td {
-    border-top: 1px solid #fff;
-    border-right: 1px solid #fff;
-    font-weight: 400;
-    font-size: 1.875em;
-    padding: .4em;
-    border: 1px solid black;
-}
-
-.scoreTable tbody tr:first-child td:nth-child(2) {
-    color: #ffbb31;
-}
-
-.scoreTable tbody tr:nth-child(2) td:nth-child(2) {
-    color: #a8a8a8;
-}
-
-.scoreTable tbody tr:nth-child(3) td:nth-child(2) {
-    color: #ad4e1a;
-}
-
-.mainMenuBtn {
-    padding: 1em;
+@media only screen and (max-width: 600px) {
+    * {
+        font-size: 12px;
+    }
 }

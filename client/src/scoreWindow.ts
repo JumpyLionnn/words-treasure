@@ -15,7 +15,13 @@ function startScoreWindow(data: any){
         tr.appendChild(placeTd);
 
         const nameTd = document.createElement("td");
-        nameTd.innerText = scores[i].name;
+        if(scores[i].name === playerName){
+            nameTd.innerText = scores[i].name + "(you)";
+        }
+        else{
+            nameTd.innerText = scores[i].name;
+        }
+        
         tr.appendChild(nameTd);
 
         const scoreTd = document.createElement("td");

@@ -19,20 +19,6 @@ const io = require('socket.io')(http, {
     }
 });
 let root = __dirname.slice(0, __dirname.length - 6);
-app.get('/', (req, res) => {
-    console.log("hallo new client");
-    let root = __dirname.slice(0, __dirname.length - 6);
-    res.sendFile(root + '/client/index.html');
-});
-app.get('/style.css', (req, res) => {
-    res.sendFile(root + '/client/style/style.css');
-});
-app.get('/general.css', (req, res) => {
-    res.sendFile(root + '/client/style/general.css');
-});
-app.get('/main.js', (req, res) => {
-    res.sendFile(root + '/client/main.js');
-});
 const timerOffset = 0;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -42,29 +28,29 @@ function start() {
         });
         yield db.get(`CREATE TABLE IF NOT EXISTS games(
         id INTEGER PRIMARY KEY,
-        code VARCHAR(5),
-        state VARCHAR(7),
-        host INTEGER,
+        code TEXT,
+        state TEXT,
+        host TEXT,
         duration INTEGER,
-        diff VARCHAR(6),
+        diff TEXT,
         maxPlayers INTEGER,
         startTime INTEGER,
-        word VARCHAR(30)
+        word TEXT
     )`);
         yield db.run(`CREATE TABLE IF NOT EXISTS players(
-        id INTEGER,
+        id TEXT,
         gameId INTEGER,
-        name VARCHAR(10)
+        name VARCHAR(10),
+        playAgain NUMERIC
     )`);
         yield db.run(`CREATE TABLE IF NOT EXISTS playersWords(
-        playerId INTEGER,
+        playerId TEXT,
         word VARCHAR(40)
     )`);
         yield db.run("DELETE FROM games");
         yield db.run("DELETE FROM players");
         yield db.run("DELETE FROM playersWords");
         io.on("connection", (socket) => {
-            console.log("new User yay!!");
             socket.on("host", (data) => __awaiter(this, void 0, void 0, function* () {
                 yield hostHandler(data, socket, db);
             }));
@@ -77,11 +63,13 @@ function start() {
             socket.on("addWord", (data) => __awaiter(this, void 0, void 0, function* () {
                 yield addWordHandler(data, socket, db);
             }));
+            socket.on("playAgain", (data) => __awaiter(this, void 0, void 0, function* () {
+                yield playAgainHandler(data, socket, db);
+            }));
             socket.on("leave", (data) => {
                 disconnect(socket.id, db);
             });
             socket.on("disconnect", (data) => {
-                console.log("user left");
                 disconnect(socket.id, db);
             });
         });
@@ -92,6 +80,28 @@ http.listen(port, () => {
     console.log(`listening on *:${port}`);
 });
 start();
+app.get('/', (req, res) => {
+    let root = __dirname.slice(0, __dirname.length - 6);
+    res.sendFile(root + '/client/index.html');
+});
+app.get('/style.css', (req, res) => {
+    res.sendFile(root + '/client/style/style.css');
+});
+app.get('/general.css', (req, res) => {
+    res.sendFile(root + '/client/style/general.css');
+});
+app.get('/main.js', (req, res) => {
+    res.sendFile(root + '/client/main.js');
+});
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(root + '/client/assets/favicon.ico');
+});
+app.get('/crown.png', (req, res) => {
+    res.sendFile(root + '/client/assets/crown2.png');
+});
+app.get('/min.css', (req, res) => {
+    res.sendFile(root + '/client/style.min.css');
+});
 const nameVefication = /[^a-zA-Z0-9 ]/;
 function addWordHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -101,8 +111,8 @@ function addWordHandler(data, socket, db) {
             return;
         }
         let game = yield db.get("SELECT * FROM games WHERE id = ?", [player.gameId]);
-        if (game.state === "ended") {
-            socket.emit("addWordError", { message: "The game already ended" });
+        if (game.state !== "started") {
+            socket.emit("addWordError", { message: "The game is not active." });
             return;
         }
         if (!checkMatchingWord(data.word, game.word)) {
@@ -168,6 +178,7 @@ function disconnect(socketId, db) {
                 if (game.host === socketId) {
                     yield db.run("UPDATE games SET host = ? WHERE id = ?", [players[0].id, game.id]);
                 }
+                console.log("playerLeft");
                 io.to(player.gameId).emit("playerLeft", { name: player.name, host: players[0].name });
             }
         }
@@ -215,6 +226,7 @@ function endGame(game, db) {
         results.scores.sort((a, b) => {
             return b.score - a.score;
         });
+        yield db.run("UPDATE games SET state = 'ended' WHERE id = ?", [game.id]);
         io.to(game.id).emit("ended", results);
         for (let player in words) {
             disconnect(player, db);
@@ -260,7 +272,7 @@ function hostHandler(data, socket, db) {
         if (typeof data.maxPlayers === "number") {
             maxPlayers = data.maxPlayers;
             if (maxPlayers > 10 || maxPlayers < 2) {
-                socket.emit("hostGameError", { message: "The maxPlayer is not in range of 2 - 10" });
+                socket.emit("hostGameError", { message: "The maxPlayers is not in range of 2 - 10" });
                 return;
             }
         }
@@ -291,7 +303,7 @@ function hostHandler(data, socket, db) {
         (?, 'waiting', ?, ?, ?, ?, ?);`, [code, socket.id, duration, diff, maxPlayers, word.word]);
         let game = yield db.get(`SELECT * FROM games WHERE code = ?`, [code]);
         socket.join(game.id);
-        db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name]);
+        db.run(`INSERT INTO players(id, gameId, name, playAgain) VALUES (?, ?, ?, 0)`, [socket.id, game.id, name]);
         socket.emit("gameCreated", {
             code,
             maxPlayers,
@@ -320,7 +332,7 @@ function joinHandler(data, socket, db) {
         if (typeof data.name === "string") {
             name = data.name.trim();
             if (name.length > 10 || name.length < 2) {
-                socket.emit("joinGameError", { message: "The name length is not in the range of 2 - 10" });
+                socket.emit("joinGameError", { message: "The name length is not in the range of 2 - 10." });
                 return;
             }
             if (nameVefication.test(name)) {
@@ -329,7 +341,7 @@ function joinHandler(data, socket, db) {
             }
         }
         else {
-            socket.emit("joinGameError", { message: "The name is not a string" });
+            socket.emit("joinGameError", { message: "The name is not a string." });
             return;
         }
         let game;
@@ -337,12 +349,12 @@ function joinHandler(data, socket, db) {
             let code = data.code;
             game = yield db.get("SELECT * FROM games WHERE code = ?", [code]);
             if (!game) {
-                socket.emit("joinGameError", { message: "The game you tried to join does not exist" });
+                socket.emit("joinGameError", { message: "The game you tried to join does not exist." });
                 return;
             }
         }
         if (game.state !== "waiting") {
-            socket.emit("joinGameError", { message: "The game you tried to join already started" });
+            socket.emit("joinGameError", { message: "The game you tried to join already started." });
             return;
         }
         let players = yield db.all("SELECT * FROM players WHERE gameId = ?", [game.id]);
@@ -353,12 +365,12 @@ function joinHandler(data, socket, db) {
         let playerNames = [name];
         for (let i = 0; i < players.length; i++) {
             if (players[i].name === name) {
-                socket.emit("joinGameError", { message: "The game you tried to join already has aplayer with the same name" });
+                socket.emit("joinGameError", { message: "The game you tried to join already has a player with the same name" });
                 return;
             }
             playerNames.push(players[i].name);
         }
-        db.run("INSERT INTO players(id, gameId, name) VALUES (? ,? ,?)", [socket.id, game.id, name]);
+        db.run("INSERT INTO players(id, gameId, name, playAgain) VALUES (? ,? ,?, 0)", [socket.id, game.id, name]);
         let host = yield db.get("SELECT name FROM players WHERE id = ?", [game.host]);
         io.to(game.id).emit("playerJoined", { name: name });
         socket.join(game.id);
@@ -372,6 +384,74 @@ function joinHandler(data, socket, db) {
         });
     });
 }
+function playAgainHandler(data, socket, db) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const player = yield db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
+        if (!player) {
+            socket.emit("playAgainError", { message: "The player does not exist." });
+            return;
+        }
+        const game = yield db.get("SELECT * FROM games WHERE id = ?", [player.gameId]);
+        const players = yield db.all("SELECT * FROM players WHERE gameId = ?", [game.id]);
+        let playerNames = [];
+        for (let i = 0; i < players.length; i++) {
+            playerNames.push(players[i].name);
+        }
+        if (game.state === "started") {
+            socket.emit("playAgainError", { message: "The game is active." });
+            return;
+        }
+        if (game.state === "ended") {
+            db.run("UPDATE games SET state = 'waiting' WHERE id = ?", [game.id]);
+        }
+        if (player.id === game.host) {
+            socket.emit("gameCreated", {
+                code: game.code,
+                maxPlayers: game.maxPlayers,
+                diff: game.diff,
+                duration: game.duration
+            });
+            for (let i = 0; i < players.length; i++) {
+                if (players[i].playAgain === 1 && players[i].id !== game.host) {
+                    io.to(players[i].id).emit("joinedGame", {
+                        players: playerNames,
+                        diff: game.diff,
+                        duration: game.duration,
+                        maxPlayers: game.maxPlayers,
+                        code: game.code,
+                        host: player.name
+                    });
+                }
+            }
+        }
+        else {
+            if (players.length < game.maxPlayers) {
+                socket.emit("playAgainError", { message: "Tha game is full." });
+                return;
+            }
+            for (let i = 0; i < players.length; i++) {
+                if (players[i].name === player.name && player.playAgain === 1) {
+                    socket.emit("playAgainError", { message: "You can not play again with this name since there is already a player with the same name." });
+                    return;
+                }
+            }
+            let host = yield db.get("SELECT * FROM players WHERE id = ?", [game.host]);
+            if (host.playAgain === 1) {
+                socket.emit("joinedGame", {
+                    players: playerNames,
+                    diff: game.diff,
+                    duration: game.duration,
+                    maxPlayers: game.maxPlayers,
+                    code: game.code,
+                    host: host.name
+                });
+            }
+            else {
+                socket.emit("waitingForHost", { message: "Waiting for the host..." });
+            }
+        }
+    });
+}
 function startGameHandler(data, socket, db) {
     return __awaiter(this, void 0, void 0, function* () {
         let game = yield db.get("SELECT * FROM games WHERE host = ?", [socket.id]);
@@ -383,6 +463,7 @@ function startGameHandler(data, socket, db) {
             socket.emit("startGameError", { message: "The game already started" });
             return;
         }
+        let gameId = game.id;
         let players = yield db.all("SELECT * FROM Players WHERE gameId = ?", [game.id]);
         if (players.length === 1) {
             socket.emit("startGameError", { message: "You can not start the game with only 1 player" });
@@ -390,9 +471,10 @@ function startGameHandler(data, socket, db) {
         }
         db.run("UPDATE games SET state = 'started' WHERE host = ?", [socket.id]);
         db.run("UPDATE games SET startTime = ? WHERE host = ?", [Math.floor(Date.now() / 1000), socket.id]);
-        setTimeout(() => {
+        setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+            let game = yield db.get("SELECT * FROM games WHERE id = ?", [gameId]);
             endGame(game, db);
-        }, (game.duration * 60 + timerOffset) * 1000);
+        }), (game.duration * 60 + timerOffset) * 1000);
         io.to(game.id).emit("gameStarted", {
             word: game.word,
             duration: game.duration

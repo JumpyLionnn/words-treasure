@@ -22,18 +22,8 @@ diffButtons.forEach((element)=>{
 const hostNameTextbox = document.getElementById("hostNameTextbox") as HTMLInputElement;
 
 hostNameTextbox.addEventListener("input", ()=>{
-    let name = hostNameTextbox.value;
-    hostNameTextbox.value = name;
-    hostMessage.innerText = "";
-    if(name.length > 10 || name.length < 2){
-        hostNameTextbox.classList.add("textboxError");
-    }
-    else{
-        hostNameTextbox.classList.remove("textboxError");
-    }
+    hostNameTextbox.value = hostNameTextbox.value.replace(/[^a-zA-Z0-9 ]/g,"");
 });
-
-const hostMessage = document.getElementById("hostMessage") as HTMLDivElement;
 
 const createButton = document.getElementById("createBtn") as HTMLButtonElement;
 
@@ -46,7 +36,7 @@ let hostGameEnterKeyUpdated = false;
 createButton.addEventListener("click", createGame);
 
 socket.on("hostGameError", (data)=>{
-    hostMessage.innerText = data.message;
+    displayAlert(data.message);
 });
 
 socket.on("gameCreated", (data)=>{
@@ -64,12 +54,12 @@ socket.on("gameCreated", (data)=>{
 
 function startHostGameWindow(){ 
     hostNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
-    hostMessage.innerText = "";
     const settings = JSON.parse(window.localStorage.getItem("word-game-settings") || "{}");
     if(settings.duration){
         durationDropDown.value = settings.duration;
     }
     if(settings.diff){
+        diffSelection = settings.diff;
         diffButtons.forEach((element)=>{
             if(element.dataset.diff === settings.diff){
                 element.classList.add("diffSelected");
@@ -89,7 +79,7 @@ function createGame(){
     playerName = hostNameTextbox.value.trim();
 
     if(playerName.length > 10 || playerName.length < 2){
-        hostMessage.innerText = "The name length should be in range of 2 - 10 letters.";
+        displayAlert("The name length should be in range of 2 - 10 letters.");
     }
     else{
         window.localStorage.setItem("word-game-settings", JSON.stringify({

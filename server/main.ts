@@ -14,26 +14,6 @@ const io = require('socket.io')(http, {
 
 let root = __dirname.slice(0, __dirname.length - 6);
 
-app.get('/', (req: any, res: any) => {
-    console.log("hallo new client");
-    let root = __dirname.slice(0, __dirname.length - 6);
-    res.sendFile(root + '/client/index.html');
-});
-
-app.get('/style.css', (req: any, res: any) => {
-    res.sendFile(root + '/client/style/style.css');
-});
-
-app.get('/general.css', (req: any, res: any) => {
-    res.sendFile(root + '/client/style/general.css');
-});
-
-app.get('/main.js', (req: any, res: any) => {
-    res.sendFile(root + '/client/main.js');
-});
-
-
-
 const timerOffset = 0;
 
 async function start() {
@@ -42,26 +22,28 @@ async function start() {
         driver: sqlite3.Database
     });
 
+
     await db.get(`CREATE TABLE IF NOT EXISTS games(
         id INTEGER PRIMARY KEY,
-        code VARCHAR(5),
-        state VARCHAR(7),
-        host INTEGER,
+        code TEXT,
+        state TEXT,
+        host TEXT,
         duration INTEGER,
-        diff VARCHAR(6),
+        diff TEXT,
         maxPlayers INTEGER,
         startTime INTEGER,
-        word VARCHAR(30)
+        word TEXT
     )`);
 
     await db.run(`CREATE TABLE IF NOT EXISTS players(
-        id INTEGER,
+        id TEXT,
         gameId INTEGER,
-        name VARCHAR(10)
+        name VARCHAR(10),
+        playAgain NUMERIC
     )`);
 
     await db.run(`CREATE TABLE IF NOT EXISTS playersWords(
-        playerId INTEGER,
+        playerId TEXT,
         word VARCHAR(40)
     )`);
 
@@ -71,7 +53,6 @@ async function start() {
 
 
     io.on("connection", (socket: any)=>{
-        console.log("new User yay!!");
         socket.on("host", async (data: any)=>{
             await hostHandler(data, socket, db);
         });
@@ -87,12 +68,15 @@ async function start() {
             await addWordHandler(data, socket, db);
         });
 
+        socket.on("playAgain", async (data: any)=>{
+            await playAgainHandler(data, socket, db);
+        });
+
         socket.on("leave", (data: any)=>{
             disconnect(socket.id, db);
         });
 
         socket.on("disconnect", (data: any)=>{
-            console.log("user left")
             disconnect(socket.id, db);
         });
     });

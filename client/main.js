@@ -1,4 +1,135 @@
 "use strict";
+const alertScreen = document.getElementById("alert");
+alertScreen.addEventListener("click", (e) => {
+    if (e.target === alertScreen) {
+        alertScreen.style.display = "none";
+        if (alertCallback) {
+            alertCallback("no");
+        }
+    }
+});
+const alertText = document.getElementById("alertText");
+const alertCloseNutton = document.getElementById("alertCloseButton");
+alertCloseNutton.addEventListener("click", () => {
+    alertScreen.style.display = "none";
+    if (alertCallback) {
+        alertCallback("no");
+    }
+});
+const alertOkButton = document.getElementById("alertOkButton");
+alertOkButton.addEventListener("click", () => {
+    alertScreen.style.display = "none";
+});
+const yesnoAlert = document.getElementById("yesnoAlert");
+const alertNoButton = document.getElementById("alertNoButton");
+alertNoButton.addEventListener("click", () => {
+    alertScreen.style.display = "none";
+    if (alertCallback) {
+        alertCallback("no");
+    }
+});
+const alertYesButton = document.getElementById("alertYesButton");
+alertYesButton.addEventListener("click", () => {
+    alertScreen.style.display = "none";
+    if (alertCallback) {
+        alertCallback("yes");
+    }
+});
+let alertCallback;
+function displayAlert(alertMessage, alertType = "normal", callback) {
+    if (alertType === "normal") {
+        alertOkButton.hidden = false;
+        yesnoAlert.hidden = true;
+    }
+    else if (alertType === "yesno") {
+        alertOkButton.hidden = true;
+        yesnoAlert.hidden = false;
+    }
+    if (callback) {
+        alertCallback = callback;
+    }
+    alertText.innerText = alertMessage;
+    alertScreen.style.display = "flex";
+}
+class Random {
+    constructor() {
+    }
+    static randint(max, min = 0) {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+    static randfloat(max, min = 0) {
+        return Math.random() * (max - min) + min;
+    }
+    static random() {
+        return Math.random();
+    }
+    static choice(array) {
+        return array[this.randint(0, array.length)];
+    }
+    static shuffle(array) {
+        array = [...array];
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = this.randint(0, i + 1);
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+}
+const backgroundDiv = document.getElementById("background");
+function generateBackground() {
+    backgroundDiv.style.backgroundColor = Random.choice(backgroundData.backgroundColors);
+    backgroundDiv.innerHTML = "";
+    const screenWidth = backgroundDiv.clientWidth;
+    const screenHeight = backgroundDiv.clientHeight;
+    for (let i = 0; i < backgroundData.lettersNumber; i++) {
+        const letterDiv = document.createElement("div");
+        letterDiv.innerText = backgroundData.letters.charAt(Random.randint(backgroundData.letters.length));
+        letterDiv.style.transform = `rotateZ(${Random.randint(0, 360)}deg)`;
+        let posX = Random.randint(screenWidth);
+        let posY = Random.randint(screenHeight);
+        letterDiv.style.top = `${posY}px`;
+        letterDiv.style.left = `${posX}px`;
+        letterDiv.style.fontSize = `${Random.randfloat(backgroundData.letterSizes.max, backgroundData.letterSizes.min)}em`;
+        letterDiv.style.color = Random.choice(backgroundData.letterColors);
+        letterDiv.classList.add("letter");
+        backgroundDiv.appendChild(letterDiv);
+    }
+}
+function distance(x1, y1, x2, y2) {
+    return Math.abs(Math.sqrt(x1 * x1 + y1 * y1) - Math.sqrt(x2 * x2 + y2 * y2));
+}
+window.addEventListener("resize", generateBackground);
+const backgroundData = {
+    backgroundColors: [
+        "#50cdfa",
+    ],
+    letterColors: [
+        "#DBFCFF",
+        "#A6CFD5",
+        "#7F96FF",
+        "#E56399",
+        "#BF98A0",
+        "#84DCCF",
+        "#DDFC74",
+        "#D3F9B5",
+        "#BF6900",
+        "#9BDEAC",
+        "#59A96A",
+        "#B4E7CE",
+        "#23CE6B",
+        "#D81E5B",
+        "#CC5803",
+        "#E2711D",
+        "#FFC971",
+        "#FFB627",
+        "#FF9505"
+    ],
+    letterSizes: {
+        min: 2,
+        max: 4
+    },
+    lettersNumber: 200,
+    letters: "abcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+};
 const mainMenuWindow = document.querySelector("div.mainMenu");
 const howToPlayWindow = document.querySelector("div.howToPlay");
 const hostGameWindow = document.querySelector("div.hostGame");
@@ -6,8 +137,17 @@ const joinGameWindow = document.querySelector("div.joinGame");
 const waitingRoomWindow = document.querySelector("div.waitingRoom");
 const inGameWindow = document.querySelector("div.inGame");
 const scoreWindow = document.querySelector("div.score");
+generateBackground();
 let socket = io.connect("/");
 let playerName;
+console.log("%cHold up!%c\n\nDo not enter or paste anything here. If someone told you to paste or enter something here, they are most likely trying to hack and/or scam you.", "background-color: #e03c28; color: #ffffff; font-size: 2.5em; padding: .25em .5em;", "font-size: 1.25em;");
+socket.on("disconnect", () => {
+    if (mainMenuWindow.hidden) {
+        displayAlert("You disconnected.");
+        hideAll();
+        mainMenuWindow.hidden = false;
+    }
+});
 const mainMenuButtons = document.querySelectorAll("#mainMenuButton");
 mainMenuButtons.forEach((element) => {
     element.addEventListener("click", (e) => {
@@ -18,9 +158,13 @@ mainMenuButtons.forEach((element) => {
 const disconnectButtons = document.querySelectorAll("#disconnectButton");
 disconnectButtons.forEach((element) => {
     element.addEventListener("click", (e) => {
-        socket.emit("leave", {});
-        hideAll();
-        mainMenuWindow.hidden = false;
+        displayAlert("Are you sure you want to leave?", "yesno", (result) => {
+            if (result === "yes") {
+                socket.emit("leave", {});
+                hideAll();
+                mainMenuWindow.hidden = false;
+            }
+        });
     });
 });
 function hideAll() {
@@ -45,23 +189,14 @@ diffButtons.forEach((element) => {
 });
 const hostNameTextbox = document.getElementById("hostNameTextbox");
 hostNameTextbox.addEventListener("input", () => {
-    let name = hostNameTextbox.value;
-    hostNameTextbox.value = name;
-    hostMessage.innerText = "";
-    if (name.length > 10 || name.length < 2) {
-        hostNameTextbox.classList.add("textboxError");
-    }
-    else {
-        hostNameTextbox.classList.remove("textboxError");
-    }
+    hostNameTextbox.value = hostNameTextbox.value.replace(/[^a-zA-Z0-9 ]/g, "");
 });
-const hostMessage = document.getElementById("hostMessage");
 const createButton = document.getElementById("createBtn");
 let diffSelection = "normal";
 let hostGameEnterKeyUpdated = false;
 createButton.addEventListener("click", createGame);
 socket.on("hostGameError", (data) => {
-    hostMessage.innerText = data.message;
+    displayAlert(data.message);
 });
 socket.on("gameCreated", (data) => {
     window.removeEventListener("keydown", hostGameKeyDown);
@@ -76,12 +211,12 @@ socket.on("gameCreated", (data) => {
 });
 function startHostGameWindow() {
     hostNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
-    hostMessage.innerText = "";
     const settings = JSON.parse(window.localStorage.getItem("word-game-settings") || "{}");
     if (settings.duration) {
         durationDropDown.value = settings.duration;
     }
     if (settings.diff) {
+        diffSelection = settings.diff;
         diffButtons.forEach((element) => {
             if (element.dataset.diff === settings.diff) {
                 element.classList.add("diffSelected");
@@ -99,7 +234,7 @@ function createGame() {
     let maxPlayers = maxPlayersDropDown.selectedIndex + 2;
     playerName = hostNameTextbox.value.trim();
     if (playerName.length > 10 || playerName.length < 2) {
-        hostMessage.innerText = "The name length should be in range of 2 - 10 letters.";
+        displayAlert("The name length should be in range of 2 - 10 letters.");
     }
     else {
         window.localStorage.setItem("word-game-settings", JSON.stringify({
@@ -130,8 +265,8 @@ const timeRemainingDiv = document.getElementById("timeRemaining");
 const wordDisplayDiv = document.getElementById("wordDisplay");
 const wordInput = document.getElementById("wordInput");
 wordInput.addEventListener("input", () => {
-    inGameMessage.innerText = "";
-    wordInput.value = wordInput.value.replace(/[\W_]+/g, "");
+    inGameMessage.innerText = "\n";
+    wordInput.value = wordInput.value.toLowerCase().replace(/[^a-z]+/g, "");
 });
 const inGameMessage = document.getElementById("inGameMessage");
 const submitWordBtn = document.getElementById("submitWord");
@@ -146,13 +281,26 @@ socket.on("wordResult", (data) => {
     if (data.correct) {
         const div = document.createElement("div");
         div.innerText = data.word;
-        currentWordsTable.appendChild(div);
+        if (currentWordsTable.children.length === 0 || currentWordsTable.children[currentWordsTable.children.length - 1].children.length === 10) {
+            const column = document.createElement("div");
+            column.classList.add("column");
+            column.appendChild(div);
+            currentWordsTable.appendChild(column);
+        }
+        else {
+            currentWordsTable.children[currentWordsTable.children.length - 1].appendChild(div);
+        }
     }
     else {
+        wordInput.classList.add("worng");
+        setTimeout(() => {
+            wordInput.classList.remove("worng");
+        }, 400);
         inGameMessage.innerText = data.message;
     }
 });
 socket.on("ended", (data) => {
+    console.log("game ended");
     window.removeEventListener("keydown", inGameKeyDown);
     window.removeEventListener("keyup", inGameKeyUp);
     inGameWindow.hidden = true;
@@ -160,7 +308,7 @@ socket.on("ended", (data) => {
     startScoreWindow(data);
 });
 function startInGameWindow(data) {
-    inGameMessage.innerText = "";
+    inGameMessage.innerText = "\n";
     wordInput.value = "";
     currentWordsTable.innerHTML = "";
     wordDisplayDiv.innerText = data.word;
@@ -173,7 +321,6 @@ function startInGameWindow(data) {
         let seconds = timeRemaining % 60;
         if (timeRemaining === 0) {
             clearInterval(timer);
-            window.removeEventListener("keydown", submitWord);
         }
         if (seconds < 10) {
             timeRemainingDiv.innerText = Math.floor(timeRemaining / 60) + ":0" + seconds;
@@ -201,25 +348,17 @@ function inGameKeyUp(e) {
 }
 const codeTextbox = document.getElementById("codeTextbox");
 const joinButton = document.getElementById("joinBtn");
-const joinMessage = document.getElementById("joinMessage");
 const joinNameTextbox = document.getElementById("joinNameTextbox");
 let joinGameEnterKeyUpdated = false;
 joinNameTextbox.addEventListener("input", () => {
-    let name = joinNameTextbox.value;
-    if (name.length > 10 || name.length < 2) {
-        joinNameTextbox.classList.add("textboxError");
-    }
-    else {
-        joinNameTextbox.classList.remove("textboxError");
-    }
+    joinNameTextbox.value = joinNameTextbox.value.replace(/[^a-zA-Z0-9 ]/g, "");
 });
 codeTextbox.addEventListener("input", () => {
-    codeTextbox.value = codeTextbox.value.toUpperCase().replace(/[\W_]+/g, "");
-    ;
+    codeTextbox.value = codeTextbox.value.toUpperCase().replace(/[^A-Z]+/g, "");
 });
 let code = "";
 socket.on("joinGameError", (data) => {
-    joinMessage.innerText = data.message;
+    displayAlert(data.message);
 });
 socket.on("joinedGame", (data) => {
     window.removeEventListener("keydown", joinGameKeyDown);
@@ -232,7 +371,6 @@ socket.on("joinedGame", (data) => {
 function startJoinGameWindow() {
     codeTextbox.value = "";
     joinNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
-    joinMessage.innerText = "";
     window.addEventListener("keydown", joinGameKeyDown);
     window.addEventListener("keyup", joinGameKeyUp);
 }
@@ -240,8 +378,11 @@ joinButton.addEventListener("click", joinGame);
 function joinGame() {
     playerName = joinNameTextbox.value;
     code = codeTextbox.value;
-    if (playerName.length > 10 || playerName.length < 2) {
-        joinMessage.innerText = "The name length should be in range of 2 -10 characters";
+    if (playerName.length < 2) {
+        displayAlert("The name length should be in range of 2 - 10 characters.");
+    }
+    else if (code.length !== 5) {
+        displayAlert("The game you tried to join does not exist.");
     }
     else {
         window.localStorage.setItem("word-game-name", playerName);
@@ -264,24 +405,25 @@ function joinGameKeyUp(e) {
 }
 const hostGameButton = document.getElementById("hostGameButton");
 const joinGameButton = document.getElementById("joinGameButton");
-const howToPlayButton = document.getElementById("howToPlayButton");
-const exitButton = document.getElementById("exitButton");
 hostGameButton.addEventListener("click", (e) => {
-    startHostGameWindow();
-    hostGameWindow.hidden = false;
-    mainMenuWindow.hidden = true;
+    if (socket.disconnected) {
+        displayAlert("You cannot host a game since you are not connected to the server.");
+    }
+    else {
+        startHostGameWindow();
+        hostGameWindow.hidden = false;
+        mainMenuWindow.hidden = true;
+    }
 });
 joinGameButton.addEventListener("click", (e) => {
-    startJoinGameWindow();
-    joinGameWindow.hidden = false;
-    mainMenuWindow.hidden = true;
-});
-howToPlayButton.addEventListener("click", (e) => {
-    howToPlayWindow.hidden = false;
-    mainMenuWindow.hidden = true;
-});
-exitButton.addEventListener("click", (e) => {
-    window.close();
+    if (socket.disconnected) {
+        displayAlert("You cannot join a game since you are not connected to the server.");
+    }
+    else {
+        startJoinGameWindow();
+        joinGameWindow.hidden = false;
+        mainMenuWindow.hidden = true;
+    }
 });
 const scoreTable = document.querySelector(".scoreTable tbody");
 function startScoreWindow(data) {
@@ -293,7 +435,12 @@ function startScoreWindow(data) {
         placeTd.innerText = (i + 1).toString();
         tr.appendChild(placeTd);
         const nameTd = document.createElement("td");
-        nameTd.innerText = scores[i].name;
+        if (scores[i].name === playerName) {
+            nameTd.innerText = scores[i].name + "(you)";
+        }
+        else {
+            nameTd.innerText = scores[i].name;
+        }
         tr.appendChild(nameTd);
         const scoreTd = document.createElement("td");
         scoreTd.innerText = scores[i].score;
@@ -302,36 +449,57 @@ function startScoreWindow(data) {
     }
 }
 const playersNumberParagraph = document.getElementById("playersNumber");
-const playersUl = document.getElementById("players");
-const codeDiv = document.getElementById("code");
+const playersList = document.getElementById("players");
+const gameCodeInputContainer = document.getElementById("gameCodeInputContainer");
+const gameCodeInput = document.getElementById("gameCodeInput");
+const gameCodeCopyButton = document.getElementById("gameCodeCopyButton");
 const durationDiv = document.getElementById("durationDiv");
 const diffDiv = document.getElementById("diffDiv");
-const waitingMessage = document.getElementById("waitingMessage");
 const startButton = document.getElementById("startGameBtn");
 startButton.addEventListener("click", () => {
     socket.emit("startGame", {});
 });
+const hostCrownImage = document.createElement("img");
+hostCrownImage.src = "/crown.png";
 let maxPlayers;
 let playersNumber = 0;
+gameCodeInputContainer.addEventListener("mouseleave", () => {
+    clearSelection();
+});
+gameCodeCopyButton.addEventListener("click", () => {
+    gameCodeInput.select();
+    document.execCommand("copy");
+    clearSelection();
+    gameCodeInput.blur();
+});
 socket.on("playerJoined", (data) => {
-    const playerLi = document.createElement("li");
-    playerLi.innerText = data.name;
+    const playerSpan = playersList.children[playersNumber].children[0];
+    playerSpan.innerText = data.name;
     playersNumber++;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
-    playersUl.appendChild(playerLi);
+    startButton.disabled = false;
 });
 socket.on("playerLeft", (data) => {
     playersNumber--;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
-    let listElelemnts = playersUl.children;
+    let listElelemnts = playersList.children;
     for (let i = 0; i < listElelemnts.length; i++) {
-        let li = listElelemnts[i];
-        if (li.innerText === data.name) {
-            playersUl.removeChild(listElelemnts[i]);
+        let player = listElelemnts[i];
+        if (player.innerText === data.name) {
+            player.innerHTML = "";
+            const playerSpan = document.createElement("span");
+            player.appendChild(playerSpan);
+            playerSpan.innerText = "\n";
+            player.classList.remove("hostPlayerNameLi");
+        }
+        if (player.innerText === playerName && data.host === playerName) {
+            startButton.style.visibility = "visible";
+            player.appendChild(hostCrownImage);
+            player.classList.add("hostPlayerNameLi");
         }
     }
-    if (data.host === playerName) {
-        startButton.hidden = false;
+    if (playersNumber === 1) {
+        startButton.disabled = true;
     }
 });
 socket.on("gameStarted", (data) => {
@@ -340,27 +508,80 @@ socket.on("gameStarted", (data) => {
     startInGameWindow(data);
 });
 socket.on("startGameError", (data) => {
-    waitingMessage.innerText = data.message;
+    displayAlert(data.message);
 });
 function startWaitingRoom(data, host) {
-    waitingMessage.innerText = "";
-    playersUl.innerHTML = "";
+    playersList.innerHTML = "";
     if (host) {
-        startButton.hidden = false;
-        waitingMessage.hidden = false;
+        data.host = playerName;
+        startButton.style.visibility = "visible";
     }
     else {
-        startButton.hidden = true;
+        startButton.style.visibility = "hidden";
     }
     maxPlayers = data.maxPlayers;
     playersNumber = data.players.length;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
+    if (playersNumber === 1) {
+        startButton.disabled = true;
+    }
+    else {
+        startButton.disabled = false;
+    }
     durationDiv.innerText = data.duration + ":00";
     diffDiv.innerText = data.diff;
-    codeDiv.innerText = data.code;
+    gameCodeInput.value = data.code;
     for (let i = 0; i < data.players.length; i++) {
-        const playerLi = document.createElement("li");
-        playerLi.innerText = data.players[i];
-        playersUl.appendChild(playerLi);
+        const playerLi = document.createElement("div");
+        if (data.host === data.players[i]) {
+            playerLi.appendChild(hostCrownImage);
+            playerLi.classList.add("hostPlayerNameLi");
+        }
+        const playerNameSpan = document.createElement("span");
+        if (data.players[i] === playerName) {
+            playerNameSpan.innerText = data.players[i] + "(you)";
+        }
+        else {
+            playerNameSpan.innerText = data.players[i];
+        }
+        playerLi.appendChild(playerNameSpan);
+        playerLi.classList.add("playerSlot");
+        playersList.appendChild(playerLi);
+    }
+    for (let i = 0; i < 30 - data.players.length; i++) {
+        const emplyPlayerLi = document.createElement("div");
+        const emptyPlayerSpan = document.createElement("span");
+        emplyPlayerLi.appendChild(emptyPlayerSpan);
+        if (maxPlayers > i + data.players.length) {
+            emplyPlayerLi.classList.add("playerSlot");
+        }
+        emptyPlayerSpan.innerText = "\n";
+        playersList.appendChild(emplyPlayerLi);
+    }
+    let dots = "\n";
+    setInterval(() => {
+        if (dots === "\n") {
+            dots = ".";
+        }
+        else if (dots.length < 3) {
+            dots += ".";
+        }
+        else {
+            dots = "\n";
+        }
+        for (let i = playersNumber; i < maxPlayers; i++) {
+            playersList.children[i].children[0].innerText = dots;
+        }
+    }, 500);
+}
+function clearSelection() {
+    if (window.getSelection) {
+        let selection = window.getSelection();
+        if (selection.empty) {
+            selection.empty();
+        }
+        else if (selection.removeAllRanges) {
+            selection.removeAllRanges();
+        }
     }
 }

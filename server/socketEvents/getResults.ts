@@ -43,7 +43,9 @@ async function endGame(game: any, db: any) {
     
     results.scores.sort((a,b)=>{
         return b.score - a.score;
-    })
+    });
+
+    await db.run("UPDATE games SET state = 'ended' WHERE id = ?",[game.id]);
 
     io.to(game.id).emit("ended", results);
     for(let player in words){
