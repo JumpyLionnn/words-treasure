@@ -47,7 +47,6 @@ socket.on("wordResult", (data)=>{
 });
 
 socket.on("ended", (data)=>{
-    console.log("game ended")
     window.removeEventListener("keydown", inGameKeyDown);
     window.removeEventListener("keyup", inGameKeyUp);
     inGameWindow.hidden = true;

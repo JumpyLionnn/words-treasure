@@ -24,6 +24,15 @@ async function startGameHandler(data: any, socket: any, db: any){
         endGame(game, db);
     }, (game.duration * 60 + timerOffset) * 1000);
 
+    let notAgainPlayers = await db.all("SELECT id FROM players WHERE  gameId = ? AND playAgain = 0", [gameId]);
+    for(let i = 0; i < notAgainPlayers.length; i++){
+        getSocket(notAgainPlayers[i].id)?.leave(game.id);
+    }
+
+    await db.run("DELETE FROM players WHERE gameId = ? AND playAgain = 0", [gameId]);
+
+    await db.run("UPDATE players SET playAgain = 0 WHERE gameId = ?", [gameId]);
+
     io.to(game.id).emit("gameStarted", {
         word: game.word,
         duration: game.duration

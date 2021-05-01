@@ -6,8 +6,8 @@
 }
 
 .joinGameElementsDiv input {
-    padding: .5em;
-    transform: translateX(-.6em);
+    padding: .3em;
+    transform: translateX(-.4em);
 }
 
 .joinButtons {

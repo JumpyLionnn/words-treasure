@@ -2,6 +2,15 @@
 const scoreTable = document.querySelector(".scoreTable tbody") as HTMLTableElement;
 
 
+const waitingForHostToPlayAgainAlert = document.getElementById("waitingForHost") as HTMLDivElement;
+
+const waitingForHostToPlayAgainText = document.getElementById("waitingForHostText") as HTMLParagraphElement;
+
+const waitingForHostToPlayAgainCancelButton = document.getElementById("waitingForHostCancelButton") as HTMLButtonElement;
+const waitingForHostToPlayAgainCloseButton = document.getElementById("waitingForHostCloseButton") as HTMLButtonElement;
+
+let waitingForHostToPlayAgainTextInterval: number;              
+
 
 
 function startScoreWindow(data: any){
@@ -31,3 +40,39 @@ function startScoreWindow(data: any){
         scoreTable.appendChild(tr);
     }
 }
+
+
+(document.getElementById("playAgainButton") as HTMLButtonElement).addEventListener("click", ()=>{
+    socket.emit("playAgain", {});
+});
+
+
+socket.on("waitingForHost", (data: any)=>{
+    waitingForHostToPlayAgainAlert.style.display = "flex";
+    let dotCount = 0;
+    waitingForHostToPlayAgainTextInterval = setInterval(()=>{
+        dotCount++;
+        if(dotCount === 4){
+            dotCount = 0;
+        }
+        
+        waitingForHostToPlayAgainText.innerText = "Waiting for the host" + ".".repeat(dotCount);
+    }, 1000)
+});
+
+waitingForHostToPlayAgainCancelButton.addEventListener("click", ()=>{
+    clearInterval(waitingForHostToPlayAgainTextInterval);
+    waitingForHostToPlayAgainAlert.style.display = "none";
+    socket.emit("leave", {});
+});
+waitingForHostToPlayAgainCloseButton.addEventListener("click", ()=>{
+    clearInterval(waitingForHostToPlayAgainTextInterval);
+    waitingForHostToPlayAgainAlert.style.display = "none";
+    socket.emit("leave", {});
+});
+
+
+
+socket.on("playAgainError", (data: any)=>{
+    displayAlert(data.message);
+});

@@ -27,7 +27,7 @@ socket.on("joinGameError", (data)=>{
 socket.on("joinedGame", (data: any)=>{
     window.removeEventListener("keydown", joinGameKeyDown);
     window.removeEventListener("keyup", joinGameKeyUp);
-    joinGameWindow.hidden = true;
+    hideAll();
     waitingRoomWindow.hidden = false;
     data.code = code;
     startWaitingRoom(data, false);

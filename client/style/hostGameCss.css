@@ -1,6 +1,12 @@
 .hostGameElementsDiv {
     display: flex;
     flex-direction: column;
+    width: 25%;
+}
+
+.hostGameElementsDiv input {
+    padding: .3em;
+    transform: translateX(-.3em);
 }
 
 .hostDropDown {

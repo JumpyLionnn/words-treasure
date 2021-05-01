@@ -1,5 +1,5 @@
 async function addWordHandler(data: any, socket: any, db: any){
-    let player = await db.get("SELECT * FROM players WHERE id = ?", socket.id);
+    let player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
     if(!player){
         socket.emit("addWordError", {message: "You are not in a game"});
         return;

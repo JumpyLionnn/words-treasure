@@ -93,9 +93,6 @@ function generateBackground() {
         backgroundDiv.appendChild(letterDiv);
     }
 }
-function distance(x1, y1, x2, y2) {
-    return Math.abs(Math.sqrt(x1 * x1 + y1 * y1) - Math.sqrt(x2 * x2 + y2 * y2));
-}
 window.addEventListener("resize", generateBackground);
 const backgroundData = {
     backgroundColors: [
@@ -173,6 +170,7 @@ function hideAll() {
     waitingRoomWindow.hidden = true;
     inGameWindow.hidden = true;
     scoreWindow.hidden = true;
+    waitingForHostToPlayAgainAlert.style.display = "none";
 }
 const durationDropDown = document.getElementById("duration");
 const maxPlayersDropDown = document.getElementById("maxPlayers");
@@ -200,12 +198,9 @@ socket.on("hostGameError", (data) => {
 socket.on("gameCreated", (data) => {
     window.removeEventListener("keydown", hostGameKeyDown);
     window.removeEventListener("keyup", hostGameKeyUp);
-    hostGameWindow.hidden = true;
+    hideAll();
     waitingRoomWindow.hidden = false;
     data.players = [playerName];
-    data.diff = data.diff;
-    data.duration = data.duration;
-    data.maxPlayers = data.maxPlayers;
     startWaitingRoom(data, true);
 });
 function startHostGameWindow() {
@@ -299,7 +294,6 @@ socket.on("wordResult", (data) => {
     }
 });
 socket.on("ended", (data) => {
-    console.log("game ended");
     window.removeEventListener("keydown", inGameKeyDown);
     window.removeEventListener("keyup", inGameKeyUp);
     inGameWindow.hidden = true;
@@ -362,7 +356,7 @@ socket.on("joinGameError", (data) => {
 socket.on("joinedGame", (data) => {
     window.removeEventListener("keydown", joinGameKeyDown);
     window.removeEventListener("keyup", joinGameKeyUp);
-    joinGameWindow.hidden = true;
+    hideAll();
     waitingRoomWindow.hidden = false;
     data.code = code;
     startWaitingRoom(data, false);
@@ -425,6 +419,11 @@ joinGameButton.addEventListener("click", (e) => {
     }
 });
 const scoreTable = document.querySelector(".scoreTable tbody");
+const waitingForHostToPlayAgainAlert = document.getElementById("waitingForHost");
+const waitingForHostToPlayAgainText = document.getElementById("waitingForHostText");
+const waitingForHostToPlayAgainCancelButton = document.getElementById("waitingForHostCancelButton");
+const waitingForHostToPlayAgainCloseButton = document.getElementById("waitingForHostCloseButton");
+let waitingForHostToPlayAgainTextInterval;
 function startScoreWindow(data) {
     scoreTable.innerHTML = "";
     let scores = data.scores;
@@ -447,6 +446,33 @@ function startScoreWindow(data) {
         scoreTable.appendChild(tr);
     }
 }
+document.getElementById("playAgainButton").addEventListener("click", () => {
+    socket.emit("playAgain", {});
+});
+socket.on("waitingForHost", (data) => {
+    waitingForHostToPlayAgainAlert.style.display = "flex";
+    let dotCount = 0;
+    waitingForHostToPlayAgainTextInterval = setInterval(() => {
+        dotCount++;
+        if (dotCount === 4) {
+            dotCount = 0;
+        }
+        waitingForHostToPlayAgainText.innerText = "Waiting for the host" + ".".repeat(dotCount);
+    }, 1000);
+});
+waitingForHostToPlayAgainCancelButton.addEventListener("click", () => {
+    clearInterval(waitingForHostToPlayAgainTextInterval);
+    waitingForHostToPlayAgainAlert.style.display = "none";
+    socket.emit("leave", {});
+});
+waitingForHostToPlayAgainCloseButton.addEventListener("click", () => {
+    clearInterval(waitingForHostToPlayAgainTextInterval);
+    waitingForHostToPlayAgainAlert.style.display = "none";
+    socket.emit("leave", {});
+});
+socket.on("playAgainError", (data) => {
+    displayAlert(data.message);
+});
 const playersNumberParagraph = document.getElementById("playersNumber");
 const playersList = document.getElementById("players");
 const gameCodeInputContainer = document.getElementById("gameCodeInputContainer");
@@ -460,6 +486,7 @@ startButton.addEventListener("click", () => {
 });
 const hostCrownImage = document.createElement("img");
 hostCrownImage.src = "/crown.png";
+let currentPlayers = [];
 let maxPlayers;
 let playersNumber = 0;
 gameCodeInputContainer.addEventListener("mouseleave", () => {
@@ -472,6 +499,7 @@ gameCodeCopyButton.addEventListener("click", () => {
     gameCodeInput.blur();
 });
 socket.on("playerJoined", (data) => {
+    currentPlayers.push(data.name);
     const playerSpan = playersList.children[playersNumber].children[0];
     playerSpan.innerText = data.name;
     playersNumber++;
@@ -479,6 +507,11 @@ socket.on("playerJoined", (data) => {
     startButton.disabled = false;
 });
 socket.on("playerLeft", (data) => {
+    let nameIndex = currentPlayers.indexOf(data.name);
+    if (nameIndex === -1) {
+        return;
+    }
+    currentPlayers.splice(nameIndex, 1);
     playersNumber--;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     let listElelemnts = playersList.children;
@@ -510,6 +543,8 @@ socket.on("startGameError", (data) => {
     displayAlert(data.message);
 });
 function startWaitingRoom(data, host) {
+    currentPlayers = [];
+    hostCrownImage.remove();
     playersList.innerHTML = "";
     if (host) {
         data.host = playerName;
@@ -537,6 +572,7 @@ function startWaitingRoom(data, host) {
             playerLi.classList.add("hostPlayerNameLi");
         }
         const playerNameSpan = document.createElement("span");
+        currentPlayers.push(data.players[i]);
         if (data.players[i] === playerName) {
             playerNameSpan.innerText = data.players[i] + "(you)";
         }

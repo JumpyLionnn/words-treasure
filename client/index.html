@@ -41,6 +41,13 @@
             </div>
         </div>
     </div>
+    <div class="alert" id="waitingForHost" style="display: none;">
+        <div class="alertCard">
+            <button class="alertCloseButton" id="waitingForHostCloseButton">X</button>
+            <p class="alertText" id="waitingForHostText">Waiting for the host...</p>
+            <button class="alertButton" id="waitingForHostCancelButton">Cancel</button>
+        </div>
+    </div>
     <div class="mainMenu window">
         <!--logo
         
@@ -223,7 +230,11 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
+            <div class="scoreScreenButtons">
+                <button class="mainMenuBtn" id="disconnectButton">Main Menu</button>
+                <button id="playAgainButton">play again</button>
+            </div>
+
         </div>
     </div>
 

@@ -39,7 +39,7 @@ async function start() {
         id TEXT,
         gameId INTEGER,
         name VARCHAR(10),
-        playAgain NUMERIC
+        playAgain INTEGER
     )`);
 
     await db.run(`CREATE TABLE IF NOT EXISTS playersWords(
@@ -73,11 +73,11 @@ async function start() {
         });
 
         socket.on("leave", (data: any)=>{
-            disconnect(socket.id, db);
+            disconnect(socket, db);
         });
 
         socket.on("disconnect", (data: any)=>{
-            disconnect(socket.id, db);
+            disconnect(socket, db);
         });
     });
 }

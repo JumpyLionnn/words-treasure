@@ -49,6 +49,12 @@
 
 .scoreWindowElements button {
     width: fit-content;
-    margin: .5em auto;
     padding: .5em 1em;
+}
+
+.scoreScreenButtons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
 }

@@ -80,7 +80,7 @@ async function hostHandler(data: any, socket: any, db: any){
 
     socket.join(game.id);
 
-    db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name])
+    await db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name])
     socket.emit("gameCreated", {
         code,
         maxPlayers,

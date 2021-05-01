@@ -24,6 +24,8 @@ startButton.addEventListener("click", ()=>{
 const hostCrownImage = document.createElement("img");
 hostCrownImage.src = "/crown.png";
 
+let currentPlayers: string[] = [];
+
 
 let maxPlayers: number;
 let playersNumber: number = 0;
@@ -34,7 +36,6 @@ gameCodeInputContainer.addEventListener("mouseleave", ()=>{
 
 gameCodeCopyButton.addEventListener("click", ()=>{
     gameCodeInput.select();
-    //gameCodeInput.setSelectionRange(0, 5);
     document.execCommand("copy");
     clearSelection();
     gameCodeInput.blur();
@@ -42,6 +43,7 @@ gameCodeCopyButton.addEventListener("click", ()=>{
 });
 
 socket.on("playerJoined", (data)=>{
+    currentPlayers.push(data.name);
     const playerSpan = playersList.children[playersNumber].children[0] as HTMLLIElement;
     playerSpan.innerText = data.name;
     playersNumber++;    
@@ -51,6 +53,11 @@ socket.on("playerJoined", (data)=>{
 });
 
 socket.on("playerLeft", (data)=>{
+    let nameIndex = currentPlayers.indexOf(data.name);
+    if(nameIndex === -1){
+        return;
+    }
+    currentPlayers.splice(nameIndex, 1);
     playersNumber--;
     playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
     let listElelemnts = playersList.children;
@@ -87,7 +94,10 @@ socket.on("startGameError", (data)=>{
 
 
 function startWaitingRoom(data: any, host: boolean){
+    currentPlayers = [];
+    hostCrownImage.remove();
     playersList.innerHTML = "";
+
     if(host){
         data.host = playerName;
         startButton.style.visibility = "visible";
@@ -113,6 +123,7 @@ function startWaitingRoom(data: any, host: boolean){
 
     gameCodeInput.value = data.code;
 
+
     for(let i = 0; i < data.players.length; i++){
         const playerLi = document.createElement("div");
          
@@ -121,10 +132,11 @@ function startWaitingRoom(data: any, host: boolean){
             playerLi.classList.add("hostPlayerNameLi");
         }
         const playerNameSpan = document.createElement("span");
+        currentPlayers.push(data.players[i])
         if(data.players[i] === playerName){
             playerNameSpan.innerText = data.players[i] + "(you)";
         }
-        else{
+        else{   
             playerNameSpan.innerText = data.players[i];
         }
         playerLi.appendChild(playerNameSpan);

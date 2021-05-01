@@ -28,10 +28,6 @@ function generateBackground(){
     }
 }
 
-function distance(x1: number, y1: number, x2: number, y2: number): number{
-    return Math.abs(Math.sqrt(x1 * x1 + y1 * y1) - Math.sqrt(x2 * x2 + y2 * y2));
-}
-
 window.addEventListener("resize", generateBackground);
 
 

@@ -42,13 +42,10 @@ socket.on("hostGameError", (data)=>{
 socket.on("gameCreated", (data)=>{
     window.removeEventListener("keydown", hostGameKeyDown);
     window.removeEventListener("keyup", hostGameKeyUp);
-    hostGameWindow.hidden = true;
+    hideAll();
     waitingRoomWindow.hidden = false;
     data.players = [playerName];
 
-    data.diff = data.diff;
-    data.duration = data.duration;
-    data.maxPlayers = data.maxPlayers;
     startWaitingRoom(data, true);
 });
 

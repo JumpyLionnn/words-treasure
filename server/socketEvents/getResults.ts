@@ -1,6 +1,7 @@
 async function endGame(game: any, db: any) {
 
     let players = await db.all(" SELECT * FROM players WHERE gameId = ?", game.id);
+    
 
     let results: {scores: Player[]} = {scores: []};
 
@@ -47,10 +48,11 @@ async function endGame(game: any, db: any) {
 
     await db.run("UPDATE games SET state = 'ended' WHERE id = ?",[game.id]);
 
-    io.to(game.id).emit("ended", results);
-    for(let player in words){
-        disconnect(player, db);
+    for(let i = 0; i < players.length; i++){
+        db.run("DELETE FROM playersWords WHERE playerId = ?", [players[i].id]);
     }
+
+    io.to(game.id).emit("ended", results);
 }
 
 interface Player{

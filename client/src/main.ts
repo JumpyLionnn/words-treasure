@@ -63,6 +63,7 @@ function hideAll(){
     waitingRoomWindow.hidden = true;
     inGameWindow.hidden = true;
     scoreWindow.hidden = true;
+    waitingForHostToPlayAgainAlert.style.display = "none";
 }
 
 
