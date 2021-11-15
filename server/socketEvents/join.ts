@@ -55,8 +55,6 @@ async function joinHandler(data: any, socket: any, db: any){
 
     let host = await db.get("SELECT name FROM players WHERE id = ?", [game.host]);
 
-    console.log("new player");
-
     io.to(game.id).emit("playerJoined", {name});
     socket.join(game.id);
     socket.emit("joinedGame", {

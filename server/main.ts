@@ -14,6 +14,21 @@ const io = require('socket.io')(http, {
 
 let root = __dirname.slice(0, __dirname.length - 6);
 
+const difficulties = {
+    "easy": {
+        "min": 500,
+        "max": 1200
+    }, 
+    "normal": {
+        "min": 300,
+        "max": 550
+    }, 
+    "hard": {
+        "min": 130,
+        "max": 350
+    }
+}
+
 const timerOffset = 0;
 
 async function start() {
@@ -21,7 +36,7 @@ async function start() {
         filename: "./server/database.db",
         driver: sqlite3.Database
     });
-
+    
 
     await db.get(`CREATE TABLE IF NOT EXISTS games(
         id INTEGER PRIMARY KEY,
@@ -39,11 +54,13 @@ async function start() {
         id TEXT,
         gameId INTEGER,
         name VARCHAR(10),
+        points INTEGER DEFAULT 0,
         playAgain INTEGER
     )`);
 
     await db.run(`CREATE TABLE IF NOT EXISTS playersWords(
         playerId TEXT,
+        gameId INTEGER,
         word VARCHAR(40)
     )`);
 

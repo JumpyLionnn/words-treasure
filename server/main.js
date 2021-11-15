@@ -19,6 +19,20 @@ const io = require('socket.io')(http, {
     }
 });
 let root = __dirname.slice(0, __dirname.length - 6);
+const difficulties = {
+    "easy": {
+        "min": 500,
+        "max": 1200
+    },
+    "normal": {
+        "min": 300,
+        "max": 550
+    },
+    "hard": {
+        "min": 130,
+        "max": 350
+    }
+};
 const timerOffset = 0;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -41,10 +55,12 @@ function start() {
         id TEXT,
         gameId INTEGER,
         name VARCHAR(10),
+        points INTEGER DEFAULT 0,
         playAgain INTEGER
     )`);
         yield db.run(`CREATE TABLE IF NOT EXISTS playersWords(
         playerId TEXT,
+        gameId INTEGER,
         word VARCHAR(40)
     )`);
         yield db.run("DELETE FROM games");
@@ -126,7 +142,18 @@ function addWordHandler(data, socket, db) {
             socket.emit("addWordError", { message: "The game is not active." });
             return;
         }
+        let incorrectWordPrice = 0;
+        if (game.diff === "easy") {
+            incorrectWordPrice = 1;
+        }
+        if (game.diff === "normal") {
+            incorrectWordPrice = 3;
+        }
+        else if (game.diff === "hard") {
+            incorrectWordPrice = 4;
+        }
         if (!checkMatchingWord(data.word, game.word)) {
+            yield db.run("UPDATE players SET points = points - ? WHERE id = ?", [incorrectWordPrice, socket.id]);
             socket.emit("wordResult", {
                 correct: false,
                 word: data.word,
@@ -136,6 +163,7 @@ function addWordHandler(data, socket, db) {
         }
         let word = yield db.get("SELECT * FROM words WHERE word = ?", data.word);
         if (!word) {
+            yield db.run("UPDATE players SET points = points - ? WHERE id = ?", [incorrectWordPrice, socket.id]);
             socket.emit("wordResult", {
                 correct: false,
                 word: data.word,
@@ -145,6 +173,7 @@ function addWordHandler(data, socket, db) {
         }
         let wordDuplicate = yield db.get("SELECT word FROM playersWords WHERE playerId = ? AND word = ?", [socket.id, data.word]);
         if (wordDuplicate) {
+            yield db.run("UPDATE players SET points = points - ? WHERE id = ?", [incorrectWordPrice, socket.id]);
             socket.emit("wordResult", {
                 correct: false,
                 word: data.word,
@@ -152,7 +181,19 @@ function addWordHandler(data, socket, db) {
             });
             return;
         }
-        yield db.run("INSERT INTO playersWords(playerId, word) VALUES (?, ?)", [socket.id, data.word]);
+        let wordCount = (yield db.get("SELECT COUNT(*) AS count FROM playersWords WHERE word = ? AND gameId = ?", [data.word, game.id]))["count"];
+        let wordPlacePoints = 0;
+        if (wordCount === 0) {
+            wordPlacePoints = 5;
+        }
+        else if (wordCount === 1) {
+            wordPlacePoints = 3;
+        }
+        else if (wordCount === 2) {
+            wordPlacePoints = 1;
+        }
+        yield db.run("UPDATE players SET points = points + ? WHERE id = ?", [wordPlacePoints, socket.id]);
+        yield db.run("INSERT INTO playersWords(playerId, gameId, word) VALUES (?, ?, ?)", [socket.id, game.id, data.word]);
         socket.emit("wordResult", {
             correct: true,
             word: data.word
@@ -224,18 +265,18 @@ function disconnect(socket, db) {
 }
 function endGame(game, db) {
     return __awaiter(this, void 0, void 0, function* () {
-        let players = yield db.all(" SELECT * FROM players WHERE gameId = ?", game.id);
+        let players = yield db.all("SELECT * FROM players WHERE gameId = ?", game.id);
         let results = { scores: [] };
         let words = {};
         for (let i = 0; i < players.length; i++) {
-            words[players[i].id] = { words: [], name: players[i].name };
+            words[players[i].id] = { words: [], name: players[i].name, points: players[i].points };
             let playerWords = yield db.all("SELECT word FROM playersWords WHERE playerId = ?", [players[i].id]);
             for (let j = 0; j < playerWords.length; j++) {
                 words[players[i].id].words.push(playerWords[j].word);
             }
         }
         for (let player in words) {
-            let points = 0;
+            let points = words[player].points;
             for (let i = 0; i < words[player].words.length; i++) {
                 let unique = true;
                 for (let otherPlayer in words) {
@@ -334,9 +375,9 @@ function hostHandler(data, socket, db) {
         let result = yield db.get("SELECT * FROM games WHERE code = ?", [code]);
         while (result) {
             let code = makeCode(5);
-            let result = yield db.get("SELECT * FROM games WHERE code = ?", [code]);
+            result = yield db.get("SELECT * FROM games WHERE code = ?", [code]);
         }
-        let word = yield db.get("SELECT word FROM diff WHERE diff = ? ORDER BY RANDOM() LIMIT 1", [diff]);
+        let word = yield db.get("SELECT word FROM words WHERE MatchingWords > ? AND MatchingWords < ? ORDER BY RANDOM() LIMIT 1", [difficulties[diff].min, difficulties[diff].max]);
         yield db.run(`INSERT INTO games(code, state, host, duration, diff, maxPlayers, word) VALUES
         (?, 'waiting', ?, ?, ?, ?, ?);`, [code, socket.id, duration, diff, maxPlayers, word.word]);
         let game = yield db.get(`SELECT * FROM games WHERE code = ?`, [code]);
@@ -410,7 +451,6 @@ function joinHandler(data, socket, db) {
         }
         db.run("INSERT INTO players(id, gameId, name) VALUES (? ,? ,?)", [socket.id, game.id, name]);
         let host = yield db.get("SELECT name FROM players WHERE id = ?", [game.host]);
-        console.log("new player");
         io.to(game.id).emit("playerJoined", { name });
         socket.join(game.id);
         socket.emit("joinedGame", {

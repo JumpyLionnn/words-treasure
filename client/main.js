@@ -268,6 +268,7 @@ submitWordBtn.addEventListener("click", submitWord);
 const currentWordsTable = document.getElementById("currentWords");
 let timeRemaining;
 let inGameEnterKeyUpdated = false;
+let waitingForWords = [];
 socket.on("addWordError", (data) => {
     inGameMessage.innerText = data.message;
 });
@@ -325,6 +326,7 @@ function startInGameWindow(data) {
 }
 function submitWord() {
     wordInput.focus();
+    waitingForWords.push(wordInput.value);
     socket.emit("addWord", { word: wordInput.value });
     wordInput.value = "";
 }

@@ -66,11 +66,11 @@ async function hostHandler(data: any, socket: any, db: any){
     let result = await db.get("SELECT * FROM games WHERE code = ?", [code]);
     while (result){
         let code = makeCode(5);
-        let result = await db.get("SELECT * FROM games WHERE code = ?", [code]);
+        result = await db.get("SELECT * FROM games WHERE code = ?", [code]);
     }
 
     // choose a random word
-    let word = await db.get("SELECT word FROM diff WHERE diff = ? ORDER BY RANDOM() LIMIT 1", [diff])
+    let word = await db.get("SELECT word FROM words WHERE MatchingWords > ? AND MatchingWords < ? ORDER BY RANDOM() LIMIT 1", [difficulties[diff].min, difficulties[diff].max]);
 
 
     await db.run(`INSERT INTO games(code, state, host, duration, diff, maxPlayers, word) VALUES
@@ -87,7 +87,6 @@ async function hostHandler(data: any, socket: any, db: any){
         diff,
         duration
     });
-
 }
 
 

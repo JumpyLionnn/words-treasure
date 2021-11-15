@@ -19,6 +19,8 @@ let timeRemaining: number;
 
 let inGameEnterKeyUpdated = false;
 
+let waitingForWords = [];
+
 socket.on("addWordError", (data)=>{
     inGameMessage.innerText = data.message;
 })
@@ -86,10 +88,9 @@ function startInGameWindow(data: any){
 
 function submitWord(){
     wordInput.focus();
+    waitingForWords.push(wordInput.value);
     socket.emit("addWord", {word: wordInput.value});
     wordInput.value = "";
-
-    
 }
 
 
