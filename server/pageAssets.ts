@@ -28,3 +28,8 @@ app.get('/crown.png', (req: any, res: any) => {
 app.get('/min.css', (req: any, res: any) => {
     res.sendFile(root + '/client/style.min.css');
 });
+
+
+app.get('/google25a371c5daa2ad1c.html', (req: any, res: any) => {
+    res.sendFile(root + '/client/google25a371c5daa2ad1c.html');
+});
