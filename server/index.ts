@@ -12,6 +12,15 @@ const io = require('socket.io')(http, {
     }
 });
 
+if(process.env.NODE_ENV === 'production') {
+    app.use((req: any, res: any, next: () => void) => {
+      if (req.header("x-forwarded-proto") !== "https")
+        res.redirect(`https://${req.header("host")}${req.url}`);
+      else
+        next();
+    })
+  }
+
 let root = process.cwd();
 
 const difficulties = {
