@@ -1,4 +1,4 @@
-async function joinHandler(data: any, socket: any, db: any){
+async function joinHandler(data: any, socket: any){
     let player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
     if(player){
         socket.emit("joinGameError", {message: "this client is already in a game"});

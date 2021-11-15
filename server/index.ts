@@ -12,7 +12,7 @@ const io = require('socket.io')(http, {
     }
 });
 
-let root = __dirname.slice(0, __dirname.length - 6);
+let root = process.cwd();
 
 const difficulties = {
     "easy": {
@@ -31,8 +31,10 @@ const difficulties = {
 
 const timerOffset = 0;
 
+let db: any;
+
 async function start() {
-    const db = await sqlite.open({
+    db = await sqlite.open({
         filename: "./server/database.db",
         driver: sqlite3.Database
     });
@@ -71,30 +73,30 @@ async function start() {
 
     io.on("connection", (socket: any)=>{
         socket.on("host", async (data: any)=>{
-            await hostHandler(data, socket, db);
+            await hostHandler(data, socket);
         });
 
         socket.on("join", async (data: any)=>{
-            await joinHandler(data, socket, db);
+            await joinHandler(data, socket);
         });
         socket.on("startGame", async (data: any)=>{
-            await startGameHandler(data, socket, db);
+            await startGameHandler(data, socket);
         });
 
         socket.on("addWord", async (data: any)=>{
-            await addWordHandler(data, socket, db);
+            await addWordHandler(data, socket);
         });
 
         socket.on("playAgain", async (data: any)=>{
-            await playAgainHandler(data, socket, db);
+            await playAgainHandler(data, socket);
         });
 
         socket.on("leave", (data: any)=>{
-            disconnect(socket, db);
+            disconnect(socket);
         });
 
         socket.on("disconnect", (data: any)=>{
-            disconnect(socket, db);
+            disconnect(socket);
         });
     });
 }

@@ -1,4 +1,4 @@
-async function startGameHandler(data: any, socket: any, db: any){
+async function startGameHandler(data: any, socket: any){
     let game = await db.get("SELECT * FROM games WHERE host = ?", [socket.id]);
     if(!game){
         socket.emit("startGameError", {message: "You are not host in a game"});
@@ -21,7 +21,7 @@ async function startGameHandler(data: any, socket: any, db: any){
     db.run("UPDATE games SET startTime = ? WHERE host = ?", [Math.floor(Date.now() / 1000),socket.id]);
     setTimeout( async ()=>{
         let game = await db.get("SELECT * FROM games WHERE id = ?", [gameId]);
-        endGame(game, db);
+        endGame(game);
     }, (game.duration * 60 + timerOffset) * 1000);
 
     let notAgainPlayers = await db.all("SELECT id FROM players WHERE  gameId = ? AND playAgain = 0", [gameId]);

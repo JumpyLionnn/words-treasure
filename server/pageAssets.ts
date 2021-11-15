@@ -1,7 +1,6 @@
 // <reference path="index.ts"/>
 
 app.get('/', (req: any, res: any) => {
-    let root = __dirname.slice(0, __dirname.length - 6);
     res.sendFile(root + '/client/index.html');
 });
 

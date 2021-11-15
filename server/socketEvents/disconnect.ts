@@ -1,4 +1,4 @@
-async function disconnect(socket: any, db: any) {
+async function disconnect(socket: any) {
     let player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
     if(player){
         await db.run("DELETE FROM playersWords WHERE playerId = ?", [socket.id]);

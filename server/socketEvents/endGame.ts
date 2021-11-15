@@ -1,4 +1,4 @@
-async function endGame(game: any, db: any) {
+async function endGame(game: any) {
 
     let players = await db.all("SELECT * FROM players WHERE gameId = ?", game.id);
     

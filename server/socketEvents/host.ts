@@ -1,4 +1,4 @@
-async function hostHandler(data: any, socket: any, db: any){
+async function hostHandler(data: any, socket: any){
 
     let player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
     if(player){
@@ -70,11 +70,11 @@ async function hostHandler(data: any, socket: any, db: any){
     }
 
     // choose a random word
-    let word = await db.get("SELECT word FROM words WHERE MatchingWords > ? AND MatchingWords < ? ORDER BY RANDOM() LIMIT 1", [difficulties[diff].min, difficulties[diff].max]);
+    let word = await getRandomWord(diff);
 
 
     await db.run(`INSERT INTO games(code, state, host, duration, diff, maxPlayers, word) VALUES
-        (?, 'waiting', ?, ?, ?, ?, ?);`, [code, socket.id, duration, diff, maxPlayers, word.word]);
+        (?, 'waiting', ?, ?, ?, ?, ?);`, [code, socket.id, duration, diff, maxPlayers, word]);
 
     let game = await db.get(`SELECT * FROM games WHERE code = ?`, [code]);
 

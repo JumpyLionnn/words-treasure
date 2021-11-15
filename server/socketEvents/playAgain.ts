@@ -1,14 +1,4 @@
-
-//when a game ends there will be an option to play again
-// if you are the host you will start the game imediatly
-// if you are not the host you will need to wait for him or to wait for him to leave so someone else will be the host
-// if the host already choose to play again it will take the player to the waiting room
-// if you choose play again but this game already started again by the host you wont be able to join
-// if you choose play again but this game is already full you wont be able to join
-// if you choose play again but this game already has someone with the same name you wont be able to join
-
-
-async function playAgainHandler(data: any, socket: any, db: any) {
+async function playAgainHandler(data: any, socket: any) {
     const player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
     if(!player){
         socket.emit("playAgainError", {message: "You are not in a game."});
@@ -39,7 +29,11 @@ async function playAgainHandler(data: any, socket: any, db: any) {
             return;
         }
         db.run("UPDATE players SET playAgain = 1 WHERE id = ?", [player.id]);
-        db.run("UPDATE games SET state = 'waiting' WHERE id = ?", [game.id]);
+        let word = await getRandomWord(game.diff as ("easy" | "normal" | "hard"));
+        while(word === game.word){
+            word = await getRandomWord(game.diff as ("easy" | "normal" | "hard"));
+        }
+        db.run("UPDATE games SET state = 'waiting', word = ? WHERE id = ?", [word, game.id]);
         socket.emit("gameCreated", {
             code: game.code,
             maxPlayers: game.maxPlayers,
