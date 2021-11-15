@@ -9,7 +9,7 @@ const waitingForHostToPlayAgainText = document.getElementById("waitingForHostTex
 const waitingForHostToPlayAgainCancelButton = document.getElementById("waitingForHostCancelButton") as HTMLButtonElement;
 const waitingForHostToPlayAgainCloseButton = document.getElementById("waitingForHostCloseButton") as HTMLButtonElement;
 
-let waitingForHostToPlayAgainTextInterval: number;              
+let waitingForHostToPlayAgainTextInterval: NodeJS.Timer;              
 
 
 
