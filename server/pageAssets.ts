@@ -1,3 +1,5 @@
+// <reference path="index.ts"/>
+
 app.get('/', (req: any, res: any) => {
     let root = __dirname.slice(0, __dirname.length - 6);
     res.sendFile(root + '/client/index.html');
@@ -11,8 +13,8 @@ app.get('/general.css', (req: any, res: any) => {
     res.sendFile(root + '/client/style/general.css');
 });
 
-app.get('/main.js', (req: any, res: any) => {
-    res.sendFile(root + '/client/main.js');
+app.get('/index.js', (req: any, res: any) => {
+    res.sendFile(root + '/client/build/index.js');
 });
 
 

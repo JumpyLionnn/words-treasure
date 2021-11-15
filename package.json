@@ -4,8 +4,9 @@
     "description": "a word game for school",
     "main": "main.js",
     "scripts": {
-        "start": "node server/main.js",
-        "dev": "nodemon server/main.js",
+        "start": "node server/build/index.js",
+        "dev": "nodemon server/build/index.js",
+        "build": "cd client && tsc && cd ../server && tsc",
         "rebuildDB": "node scripts/buildDB.js"
     },
     "repository": {
