@@ -45,9 +45,13 @@ css = css.replace(startBracketsRegex, "");
 
 css = css.replace(endBracketsRegex, "");
 
-fs.writeFileSync(path + "/build/style/style.min.css", css, {
-    flag: "wx"
-});
+
+
+if (!fs.existsSync(path + "/build/style/")) {
+    fs.mkdirSync(path + "/build/style/");
+}
+
+fs.writeFileSync(path + "/build/style/style.min.css", css);
 
 console.log(`Successfully minified ${filesNumber} css files`);
 console.timeEnd("in");
