@@ -1,5 +1,10 @@
+@font-face {
+    font-family: rounded;
+    src: url(../assets/fonts/rounded.ttf);
+}
+
 * {
-    font-family: Comic Sans MS, Comic Sans, cursive;
+    font-family: rounded;
 }
 
 html,
@@ -45,14 +50,13 @@ button:focus {
     border-color: blue;
 }
 
-.disconnectButton {
+#disconnect-button {
     margin: 1em;
     padding: .3em 1em;
 }
 
 h3 {
     height: fit-content;
-    align-self: end;
     color: white;
     font-size: 1.8em;
     font-weight: 800;
@@ -62,10 +66,24 @@ h3 {
     padding: .3em;
 }
 
-.nameTextbox:focus {
+.name-textbox:focus {
     outline: none;
 }
 
-.nameTextbox:not(.textboxError) {
+.name-textbox:not(.textbox-error) {
     border-color: black;
+}
+
+.dropdown select {
+    border: blue 1px solid;
+    border-radius: 5px;
+    font-size: 1.5em;
+    height: fit-content;
+    padding: .2em;
+    text-align: center;
+    color: blue;
+}
+
+.dropdown select:focus {
+    outline: none;
 }

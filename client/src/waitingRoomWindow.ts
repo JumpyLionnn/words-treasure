@@ -1,34 +1,26 @@
 /// <reference path="main.ts" />
 
 
-const playersNumberParagraph = document.getElementById("playersNumber") as HTMLParagraphElement;
-
+const playersCounter = document.getElementById("players-counter") as HTMLParagraphElement;
 const playersList = document.getElementById("players") as HTMLDivElement;
-
-const gameCodeInputContainer = document.getElementById("gameCodeInputContainer") as HTMLDivElement;
-
-const gameCodeInput = document.getElementById("gameCodeInput") as HTMLInputElement;
-
-const gameCodeCopyButton = document.getElementById("gameCodeCopyButton") as HTMLButtonElement;
-
-const durationDiv = document.getElementById("durationDiv") as HTMLSpanElement;
-
-const diffDiv = document.getElementById("diffDiv") as HTMLSpanElement;
-
-const startButton = document.getElementById("startGameBtn") as HTMLButtonElement;
-
-startButton.addEventListener("click", ()=>{
-    socket.emit("startGame", {});
-});
+const gameCodeInputContainer = document.getElementById("game-code-input-container") as HTMLDivElement;
+const gameCodeInput = document.getElementById("game-code-input") as HTMLInputElement;
+const gameCodeCopyButton = document.getElementById("game-code-copy-button") as HTMLButtonElement;
+const durationDisplay = document.getElementById("duration-display") as HTMLSpanElement;
+const difficultyDisplay = document.getElementById("difficulty-display") as HTMLSpanElement;
+const startButton = document.getElementById("start-game-button") as HTMLButtonElement;
 
 const hostCrownImage = document.createElement("img");
-hostCrownImage.src = "/crown.png";
+hostCrownImage.src = "assets/images/crown.png";
 
 let currentPlayers: string[] = [];
 
-
 let maxPlayers: number;
 let playersNumber: number = 0;
+
+startButton.addEventListener("click", ()=>{
+    socket.emit("start-game", {});
+});
 
 gameCodeInputContainer.addEventListener("mouseleave", ()=>{
     clearSelection();
@@ -39,27 +31,25 @@ gameCodeCopyButton.addEventListener("click", ()=>{
     document.execCommand("copy");
     clearSelection();
     gameCodeInput.blur();
-     
 });
 
-socket.on("playerJoined", (data)=>{
+socket.on("player-joined", (data: any)=>{
     currentPlayers.push(data.name);
     const playerSpan = playersList.children[playersNumber].children[0] as HTMLLIElement;
     playerSpan.innerText = data.name;
     playersNumber++;    
-    playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
-
+    playersCounter.innerText = playersNumber + "/" + maxPlayers;
     startButton.disabled = false;
 });
 
-socket.on("playerLeft", (data)=>{
+socket.on("playerLeft", (data: any)=>{
     let nameIndex = currentPlayers.indexOf(data.name);
     if(nameIndex === -1){
         return;
     }
     currentPlayers.splice(nameIndex, 1);
     playersNumber--;
-    playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
+    playersCounter.innerText = playersNumber + "/" + maxPlayers;
     let listElelemnts = playersList.children;
     for(let i = 0; i < listElelemnts.length; i++){
         let player = listElelemnts[i] as HTMLDivElement;    
@@ -68,13 +58,13 @@ socket.on("playerLeft", (data)=>{
             const playerSpan = document.createElement("span");
             player.appendChild(playerSpan);
             playerSpan.innerText = "\n";
-            player.classList.remove("hostPlayerNameLi");
+            player.classList.remove("host-player-name-li");
         }
 
         if(player.innerText === playerName && data.host === playerName){
             startButton.style.visibility = "visible";
             player.appendChild(hostCrownImage);
-            player.classList.add("hostPlayerNameLi");
+            player.classList.add("host-player-name-li");
         }
     }
     if(playersNumber === 1){
@@ -82,14 +72,10 @@ socket.on("playerLeft", (data)=>{
     }
 });
 
-socket.on("gameStarted", (data)=>{
+socket.on("game-started", (data: any)=>{
     waitingRoomWindow.hidden = true;
     inGameWindow.hidden = false;
     startInGameWindow(data);
-});
-
-socket.on("startGameError", (data)=>{
-    displayAlert(data.message);
 });
 
 
@@ -101,7 +87,6 @@ function startWaitingRoom(data: any, host: boolean){
     if(host){
         data.host = playerName;
         startButton.style.visibility = "visible";
-
     }
     else{
         startButton.style.visibility = "hidden";
@@ -109,7 +94,7 @@ function startWaitingRoom(data: any, host: boolean){
 
     maxPlayers = data.maxPlayers;
     playersNumber = data.players.length;
-    playersNumberParagraph.innerText = playersNumber + "/" + maxPlayers;
+    playersCounter.innerText = playersNumber + "/" + maxPlayers;
 
     if(playersNumber === 1){
         startButton.disabled = true;
@@ -118,18 +103,17 @@ function startWaitingRoom(data: any, host: boolean){
         startButton.disabled = false; 
     }
 
-    durationDiv.innerText = data.duration + ":00";
-    diffDiv.innerText = data.diff
+    durationDisplay.innerText = data.duration + ":00";
+    difficultyDisplay.innerText = data.difficulty
 
     gameCodeInput.value = data.code;
-
 
     for(let i = 0; i < data.players.length; i++){
         const playerLi = document.createElement("div");
          
         if(data.host === data.players[i]){
             playerLi.appendChild(hostCrownImage);
-            playerLi.classList.add("hostPlayerNameLi");
+            playerLi.classList.add("host-player-name-li");
         }
         const playerNameSpan = document.createElement("span");
         currentPlayers.push(data.players[i])
@@ -140,7 +124,7 @@ function startWaitingRoom(data: any, host: boolean){
             playerNameSpan.innerText = data.players[i];
         }
         playerLi.appendChild(playerNameSpan);
-        playerLi.classList.add("playerSlot");
+        playerLi.classList.add("player-slot");
         playersList.appendChild(playerLi);
     }
     for(let i = 0; i < 30 - data.players.length; i++){
@@ -148,7 +132,7 @@ function startWaitingRoom(data: any, host: boolean){
         const emptyPlayerSpan = document.createElement("span");
         emplyPlayerLi.appendChild(emptyPlayerSpan);
         if(maxPlayers > i + data.players.length){
-            emplyPlayerLi.classList.add("playerSlot");
+            emplyPlayerLi.classList.add("player-slot");
         }
         emptyPlayerSpan.innerText = "\n";
         playersList.appendChild(emplyPlayerLi); 
@@ -172,8 +156,8 @@ function startWaitingRoom(data: any, host: boolean){
 
 
 function clearSelection(){
-    if (window.getSelection) {
-        let selection = window.getSelection() as Selection;
+    let selection = window.getSelection();
+    if (selection !== null) {
         if (selection.empty) { 
             selection.empty();
         }

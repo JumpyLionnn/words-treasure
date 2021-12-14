@@ -1,31 +1,24 @@
-const timeRemainingDiv = document.getElementById("timeRemaining") as HTMLDivElement;
+const timeRemainingDisplay = document.getElementById("time-remaining") as HTMLDivElement;
+const wordDisplay = document.getElementById("word-display") as HTMLDivElement;
+const wordInput = document.getElementById("word-input") as HTMLInputElement;
+const inGameMessage = document.getElementById("in-game-message") as HTMLDivElement;
+const submitWordButton = document.getElementById("submit-word") as HTMLButtonElement;
+submitWordButton.addEventListener("click", submitWord);
+const currentWordsTable = document.getElementById("current-words") as HTMLDivElement;
 
-const wordDisplayDiv = document.getElementById("wordDisplay") as HTMLDivElement;
+let timeRemaining: number;
+let waitingForWords = [];
 
-const wordInput = document.getElementById("wordInput") as HTMLInputElement;
 wordInput.addEventListener("input", ()=>{
     inGameMessage.innerText = "\n";
     wordInput.value = wordInput.value.toLowerCase().replace(/[^a-z]+/g,"");
 });
 
-const inGameMessage = document.getElementById("inGameMessage") as HTMLDivElement;
-
-const submitWordBtn = document.getElementById("submitWord") as HTMLButtonElement;
-submitWordBtn.addEventListener("click", submitWord);
-
-const currentWordsTable = document.getElementById("currentWords") as HTMLDivElement;
-
-let timeRemaining: number;
-
-let inGameEnterKeyUpdated = false;
-
-let waitingForWords = [];
-
-socket.on("addWordError", (data)=>{
+socket.on("error", (data: any)=>{
     inGameMessage.innerText = data.message;
 })
 
-socket.on("wordResult", (data)=>{
+socket.on("word-result", (data: any)=>{
     if(data.correct){
         const div = document.createElement("div");
         div.innerText = data.word;
@@ -40,17 +33,16 @@ socket.on("wordResult", (data)=>{
         }
     }
     else{
-        wordInput.classList.add("worng");
+        wordInput.classList.add("wrong");
         setTimeout(()=>{
-            wordInput.classList.remove("worng");
+            wordInput.classList.remove("wrong");
         }, 400);
         inGameMessage.innerText = data.message;
     }
 });
 
-socket.on("ended", (data)=>{
+socket.on("ended", (data: any)=>{
     window.removeEventListener("keydown", inGameKeyDown);
-    window.removeEventListener("keyup", inGameKeyUp);
     inGameWindow.hidden = true;
     scoreWindow.hidden = false;
     startScoreWindow(data);
@@ -62,12 +54,11 @@ function startInGameWindow(data: any){
     wordInput.value = "";
     currentWordsTable.innerHTML = "";
 
-    wordDisplayDiv.innerText = data.word;
+    wordDisplay.innerText = data.word;
     
     inGameWindow.addEventListener("keydown", inGameKeyDown);
-    inGameWindow.addEventListener("keyup", inGameKeyUp);
 
-    timeRemainingDiv.innerText = data.duration + ":00";
+    timeRemainingDisplay.innerText = data.duration + ":00";
     timeRemaining = data.duration * 60;
     let timer  = setInterval(()=>{
         timeRemaining--;
@@ -78,10 +69,10 @@ function startInGameWindow(data: any){
         }
 
         if(seconds < 10){
-            timeRemainingDiv.innerText = Math.floor(timeRemaining / 60) + ":0" + seconds;
+            timeRemainingDisplay.innerText = Math.floor(timeRemaining / 60) + ":0" + seconds;
         }
         else{
-            timeRemainingDiv.innerText = Math.floor(timeRemaining / 60) + ":" + seconds;
+            timeRemainingDisplay.innerText = Math.floor(timeRemaining / 60) + ":" + seconds;
         }
     }, 1000);
 }
@@ -89,20 +80,13 @@ function startInGameWindow(data: any){
 function submitWord(){
     wordInput.focus();
     waitingForWords.push(wordInput.value);
-    socket.emit("addWord", {word: wordInput.value});
+    socket.emit("add-word", {word: wordInput.value});
     wordInput.value = "";
 }
 
 
-function inGameKeyDown(e: any){
-    if(e.key === "Enter" && inGameEnterKeyUpdated === false){
-        inGameEnterKeyUpdated = true;
+function inGameKeyDown(e: KeyboardEvent){
+    if(e.key === "Enter" && (!e.repeat)){
         submitWord();
-    }
-}
-
-function inGameKeyUp(e: any){
-    if(e.key === "Enter"){
-        inGameEnterKeyUpdated = false;
     }
 }

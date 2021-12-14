@@ -1,17 +1,11 @@
 
-const scoreTable = document.querySelector(".scoreTable tbody") as HTMLTableElement;
-
-
-const waitingForHostToPlayAgainAlert = document.getElementById("waitingForHost") as HTMLDivElement;
-
-const waitingForHostToPlayAgainText = document.getElementById("waitingForHostText") as HTMLParagraphElement;
-
-const waitingForHostToPlayAgainCancelButton = document.getElementById("waitingForHostCancelButton") as HTMLButtonElement;
-const waitingForHostToPlayAgainCloseButton = document.getElementById("waitingForHostCloseButton") as HTMLButtonElement;
+const scoreTable = document.querySelector("#score-table tbody") as HTMLTableElement;
+const waitingForHostToPlayAgainAlert = document.getElementById("waiting-for-host") as HTMLDivElement;
+const waitingForHostToPlayAgainText = document.getElementById("waiting-for-host-text") as HTMLParagraphElement;
+const waitingForHostToPlayAgainCancelButton = document.getElementById("waiting-for-host-cancel-button") as HTMLButtonElement;
+const waitingForHostToPlayAgainCloseButton = document.getElementById("waiting-for-host-close-button") as HTMLButtonElement;
 
 let waitingForHostToPlayAgainTextInterval: NodeJS.Timer;              
-
-
 
 function startScoreWindow(data: any){
     scoreTable.innerHTML = "";
@@ -42,12 +36,12 @@ function startScoreWindow(data: any){
 }
 
 
-(document.getElementById("playAgainButton") as HTMLButtonElement).addEventListener("click", ()=>{
-    socket.emit("playAgain", {});
+(document.getElementById("play-again-button") as HTMLButtonElement).addEventListener("click", ()=>{
+    socket.emit("play-again", {});
 });
 
 
-socket.on("waitingForHost", (data: any)=>{
+socket.on("waiting-for-host", (data: any)=>{
     waitingForHostToPlayAgainAlert.style.display = "flex";
     let dotCount = 0;
     waitingForHostToPlayAgainTextInterval = setInterval(()=>{
@@ -57,7 +51,7 @@ socket.on("waitingForHost", (data: any)=>{
         }
         
         waitingForHostToPlayAgainText.innerText = "Waiting for the host" + ".".repeat(dotCount);
-    }, 1000)
+    }, 1000);
 });
 
 waitingForHostToPlayAgainCancelButton.addEventListener("click", ()=>{
@@ -72,7 +66,6 @@ waitingForHostToPlayAgainCloseButton.addEventListener("click", ()=>{
 });
 
 
-
-socket.on("playAgainError", (data: any)=>{
+socket.on("error", (data: any)=>{
     displayAlert(data.message);
 });

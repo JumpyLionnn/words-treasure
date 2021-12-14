@@ -1,10 +1,11 @@
 console.log("importing packages...");
 const sqlite3 = require("sqlite3").verbose();
 const sqlite = require("sqlite");
+const path = require("path");
+const fs = require("fs");
+const express = require("express");
 
-//const port = 3300;
-//console.log(`Starting web socket server on port ${port}...`);
-const app = require('express')();
+const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http, {
     cors: {
@@ -18,68 +19,27 @@ if(process.env.NODE_ENV === 'production') {
         res.redirect(`https://${req.header("host")}${req.url}`);
       else
         next();
-    })
-  }
-
-let root = process.cwd();
-
-const difficulties = {
-    "easy": {
-        "min": 500,
-        "max": 1200
-    }, 
-    "normal": {
-        "min": 300,
-        "max": 550
-    }, 
-    "hard": {
-        "min": 130,
-        "max": 350
-    }
+    });
 }
-
-const timerOffset = 0;
 
 let db: any;
 
+let cwd = process.cwd();
+let port = process.env.PORT || 3000;
+
+const timerOffset = 2;
+
+
+// loading game data
+console.log("loading game data...");
+const gameScoring = JSON.parse(fs.readFileSync("server/data/gameScoring.json"));
+const difficulties = JSON.parse(fs.readFileSync("server/data/gameDifficulties.json"));
+
+
+
 async function start() {
-    db = await sqlite.open({
-        filename: "./server/database.db",
-        driver: sqlite3.Database
-    });
-    
-
-    await db.get(`CREATE TABLE IF NOT EXISTS games(
-        id INTEGER PRIMARY KEY,
-        code TEXT,
-        state TEXT,
-        host TEXT,
-        duration INTEGER,
-        diff TEXT,
-        maxPlayers INTEGER,
-        startTime INTEGER,
-        word TEXT
-    )`);
-
-    await db.run(`CREATE TABLE IF NOT EXISTS players(
-        id TEXT,
-        gameId INTEGER,
-        name VARCHAR(10),
-        points INTEGER DEFAULT 0,
-        playAgain INTEGER
-    )`);
-
-    await db.run(`CREATE TABLE IF NOT EXISTS playersWords(
-        playerId TEXT,
-        gameId INTEGER,
-        word VARCHAR(40)
-    )`);
-
-    await db.run("DELETE FROM games");
-    await db.run("DELETE FROM players");
-    await db.run("DELETE FROM playersWords");
-
-
+    // setting all of the socket events
+    await startDatabase();
     io.on("connection", (socket: any)=>{
         socket.on("host", async (data: any)=>{
             await hostHandler(data, socket);
@@ -88,15 +48,15 @@ async function start() {
         socket.on("join", async (data: any)=>{
             await joinHandler(data, socket);
         });
-        socket.on("startGame", async (data: any)=>{
+        socket.on("start-game", async (data: any)=>{
             await startGameHandler(data, socket);
         });
 
-        socket.on("addWord", async (data: any)=>{
+        socket.on("add-word", async (data: any)=>{
             await addWordHandler(data, socket);
         });
 
-        socket.on("playAgain", async (data: any)=>{
+        socket.on("play-again", async (data: any)=>{
             await playAgainHandler(data, socket);
         });
 
@@ -108,11 +68,28 @@ async function start() {
             disconnect(socket);
         });
     });
-}
 
-let port = process.env.PORT || 3000;
-http.listen(port, () => {
-    console.log(`listening on *:${port}`);
-});
+    //setting http routes
+    app.use("/src", express.static(path.join(cwd ,"client/build/src")));
+    app.use("/style", express.static(path.join(cwd ,"client/build/style")));
+    app.use("/assets", express.static(path.join(cwd ,"client/assets")));
+
+
+    app.get('/', (req: any, res: any) => {
+        res.sendFile(cwd + '/client/index.html');
+    });
+
+
+
+    app.get('/google25a371c5daa2ad1c.html', (req: any, res: any) => {
+        res.sendFile(cwd + '/client/google25a371c5daa2ad1c.html');
+    });
+
+
+    // starting the server
+    http.listen(port, () => {
+        console.log(`listening on *:${port}`);
+    });
+}
 
 start();

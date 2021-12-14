@@ -1,39 +1,32 @@
 async function startGameHandler(data: any, socket: any){
-    let game = await db.get("SELECT * FROM games WHERE host = ?", [socket.id]);
+    let game = await getGameByHostId(socket.id);
     if(!game){
-        socket.emit("startGameError", {message: "You are not host in a game"});
-        return;
+        return socket.emit("error", {message: "You are not host in a game"});
     }
     if(game.state !== "waiting"){
-        socket.emit("startGameError", {message: "The game already started"});
-        return;
+        return socket.emit("error", {message: "The game already started"});
     }
-    let gameId = game.id;
-    let players = await db.all("SELECT * FROM Players WHERE gameId = ?", [game.id]);
+    
+    let players = await getAllPlayersByGameId(game.id);
 
     if(players.length === 1){
-        socket.emit("startGameError", {message: "You can not start the game with only 1 player"});
-        return;
+        return socket.emit("error", {message: "You can not start the game with only 1 player"});
     }
 
-    db.run("UPDATE games SET state = 'started' WHERE host = ?", [socket.id]);
+    setGameAsStarted(game.id);
 
-    db.run("UPDATE games SET startTime = ? WHERE host = ?", [Math.floor(Date.now() / 1000),socket.id]);
     setTimeout( async ()=>{
-        let game = await db.get("SELECT * FROM games WHERE id = ?", [gameId]);
         endGame(game);
     }, (game.duration * 60 + timerOffset) * 1000);
 
-    let notAgainPlayers = await db.all("SELECT id FROM players WHERE  gameId = ? AND playAgain = 0", [gameId]);
+    let notAgainPlayers = await deleteAllPlayersThatDidNotPlayAgainByGameId(game.id);
     for(let i = 0; i < notAgainPlayers.length; i++){
-        getSocket(notAgainPlayers[i].id)?.leave(game.id);
+        io.sockets.sockets.get(notAgainPlayers[i].id).leave(game.id);
     }
 
-    await db.run("DELETE FROM players WHERE gameId = ? AND playAgain = 0", [gameId]);
+    resetPlayersPlayAgainIndicatorByGameId(game.id);
 
-    await db.run("UPDATE players SET playAgain = 0 WHERE gameId = ?", [gameId]);
-
-    io.to(game.id).emit("gameStarted", {
+    io.to(game.id).emit("game-started", {
         word: game.word,
         duration: game.duration
     });

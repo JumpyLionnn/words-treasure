@@ -1,54 +1,46 @@
 async function playAgainHandler(data: any, socket: any) {
-    const player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
+    const player = await getPlayerById(socket.id);
     if(!player){
-        socket.emit("playAgainError", {message: "You are not in a game."});
-        return;
+        return socket.emit("error", {message: "You are not in a game."});
     }
-    const game = await db.get("SELECT * FROM games WHERE id = ?", [player.gameId]);
+    const game = await getGameById(player.gameId);
 
-    const players = await db.all("SELECT * FROM players WHERE gameId = ?", [game.id]);
+    
+    if(game.state === "started"){
+        return socket.emit("error", {message: "The game is active."});
+    }
+
+    const players = await getAllPlayersByGameId(game.id);
     let playerNames: string[] = [];
     for(let i = 0; i < players.length; i++){
         if(players[i].playAgain === 1){
             playerNames.push(players[i].name);
         }
-        
     }
-
-    if(game.state === "started"){
-        socket.emit("playAgainError", {message: "The game is active."});
-        return;
-    }
-
-    
 
     if(player.id === game.host){
-
         if(game.state === "waiting"){
-            socket.emit("playAgainError", {message: "The game is in waiting state."});
-            return;
+            return socket.emit("error", {message: "The game is in waiting room."});
         }
-        db.run("UPDATE players SET playAgain = 1 WHERE id = ?", [player.id]);
-        let word = await getRandomWord(game.diff as ("easy" | "normal" | "hard"));
-        while(word === game.word){
-            word = await getRandomWord(game.diff as ("easy" | "normal" | "hard"));
-        }
-        db.run("UPDATE games SET state = 'waiting', word = ? WHERE id = ?", [word, game.id]);
-        socket.emit("gameCreated", {
+        markPlayerWithPlayAgain(player.id);
+
+        renewGame(game);
+
+        socket.emit("game-created", {
             code: game.code,
             maxPlayers: game.maxPlayers,
-            diff: game.diff,
+            difficulty: game.difficulty,
             duration: game.duration
         });
         for(let i = 0; i < playerNames.length; i++){
             if(playerNames[i] !== player.name){
-                socket.emit("playerJoined", {name: playerNames[i]});
+                socket.emit("player-joined", {name: playerNames[i]});
             }
         }
         playerNames.push(player.name);
-        io.to(game.id + "-playAgain").emit("joinedGame", {
+        io.to(game.id + "-playAgain").emit("joined-game", {
             players: playerNames,
-            diff: game.diff,
+            difficulty: game.difficulty,
             duration: game.duration,
             maxPlayers: game.maxPlayers,
             code: game.code,
@@ -57,30 +49,27 @@ async function playAgainHandler(data: any, socket: any) {
     }
     else{
         if(players.length === game.maxPlayers){
-            socket.emit("playAgainError", {message: "Tha game is full."});
-            return;
+            return socket.emit("error", {message: "Tha game is full."});
         }
 
         
         for(let i = 0; i < players.length; i++){
             if(players[i].name === player.name && player.playAgain === 1){
-                socket.emit("playAgainError", {message: "You can not play again with this name since there is already a player with the same name."});
-                return;
+                return socket.emit("error", {message: "You can not play again with this name since there is already a player with the same name."});
             }
         }
 
-        db.run("UPDATE players SET playAgain = 1 WHERE id = ?", [player.id]);
+        markPlayerWithPlayAgain(player.id);
 
-
-        let host = await db.get("SELECT * FROM players WHERE id = ?", [game.host]);
+        let host = await getPlayerById(game.host);
 
         if(host.playAgain === 1){
-            io.to(game.id).emit("playerJoined", {name: player.name});
+            io.to(game.id).emit("player-joined", {name: player.name});
             socket.join(game.id);
             playerNames.unshift(player.name);
-            socket.emit("joinedGame", {
+            socket.emit("joined-game", {
                 players: playerNames,
-                diff: game.diff,
+                difficulty: game.difficulty,
                 duration: game.duration,
                 maxPlayers: game.maxPlayers,
                 code: game.code,
@@ -89,13 +78,12 @@ async function playAgainHandler(data: any, socket: any) {
         }
         else{
             if(game.state === "waiting"){
-                socket.emit("playAgainError", {message: "The game is in waiting state."});
+                socket.emit("error", {message: "The game is in waiting room."});
                 return;
             }   
             
             socket.join(game.id + "-playAgain");
-            socket.emit("waitingForHost", {message: "Waiting for the host..."});
+            socket.emit("waiting-for-host", {message: "Waiting for the host..."});
         }   
     }
-
 }

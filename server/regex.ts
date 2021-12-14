@@ -1,1 +1,0 @@
-const nameVefication = /[^a-zA-Z0-9 ]/;

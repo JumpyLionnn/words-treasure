@@ -1,5 +1,4 @@
 const alertScreen = document.getElementById("alert") as HTMLDivElement;
-
 alertScreen.addEventListener("click", (e)=>{    
     if(e.target === alertScreen){
         alertScreen.style.display = "none";
@@ -10,55 +9,55 @@ alertScreen.addEventListener("click", (e)=>{
     
 });
 
-const alertText = document.getElementById("alertText") as HTMLParagraphElement;
+const dialogAlert = document.getElementById("dialog-alert") as HTMLDivElement;
 
-const alertCloseNutton = document.getElementById("alertCloseButton") as HTMLButtonElement;
+const alertText = document.getElementById("alert-text") as HTMLParagraphElement;
 
-alertCloseNutton.addEventListener("click", ()=>{
+(document.getElementById("alert-close-button") as HTMLButtonElement).addEventListener("click", ()=>{
     alertScreen.style.display = "none";
     if(alertCallback){
         alertCallback("no");
     }
 });
 
-const alertOkButton = document.getElementById("alertOkButton") as HTMLButtonElement;
-
+const alertOkButton = document.getElementById("alert-ok-button") as HTMLButtonElement;
 alertOkButton.addEventListener("click", ()=>{
     alertScreen.style.display = "none";
 });
 
-const yesnoAlert = document.getElementById("yesnoAlert") as HTMLDivElement;
 
-const alertNoButton = document.getElementById("alertNoButton") as HTMLButtonElement;
 
-alertNoButton.addEventListener("click", ()=>{
+(document.getElementById("alert-no-button") as HTMLButtonElement).addEventListener("click", ()=>{
     alertScreen.style.display = "none";
     if(alertCallback){
         alertCallback("no");
     }
 });
 
-const alertYesButton = document.getElementById("alertYesButton") as HTMLButtonElement;
-
-alertYesButton.addEventListener("click", ()=>{
+(document.getElementById("alert-yes-button") as HTMLButtonElement).addEventListener("click", ()=>{
     alertScreen.style.display = "none";
     if(alertCallback){
         alertCallback("yes");
     }
 });
 
+enum AlertType {
+    confirmition,
+    dialog
+}
+
 let alertCallback: (result: string)=>void;
 
-function displayAlert(alertMessage: string, alertType: string = "normal", callback?:(result: string)=>void){
-    if(alertType === "normal"){
+function displayAlert(alertMessage: string, alertType: AlertType = AlertType.confirmition, callback?:(result: string)=>void){
+    if(alertType === AlertType.confirmition){
         alertOkButton.hidden = false;
 
-        yesnoAlert.hidden = true;
+        dialogAlert.hidden = true;
     }
-    else if(alertType === "yesno"){
+    else if(alertType === AlertType.dialog){
         alertOkButton.hidden = true;
 
-        yesnoAlert.hidden = false;
+        dialogAlert.hidden = false;
     }
     if(callback){
         alertCallback = callback;

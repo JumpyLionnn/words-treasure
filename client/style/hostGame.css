@@ -1,0 +1,39 @@
+.host-game-elements-div {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+}
+
+.host-game-elements-div input {
+    padding: .3em;
+    transform: translateX(-.3em);
+}
+
+.dropdown {
+    display: flex;
+    flex-direction: column;
+}
+
+#difficulty-selection {
+    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 5px;
+    min-width: 0;
+}
+
+.difficulty-selected {
+    border: 3px solid blue;
+}
+
+#host-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+    margin-top: 1em;
+}
+
+#host-buttons button {
+    margin: 0;
+    padding: .5em;
+}

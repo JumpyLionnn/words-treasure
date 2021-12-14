@@ -1,4 +1,4 @@
-/// <reference path="./modules/random.ts"/>
+/// <reference path="utilities.ts" />
 
 const backgroundDiv = document.getElementById("background") as HTMLDivElement;
 
@@ -21,7 +21,7 @@ function generateBackground(){
 
         letterDiv.style.fontSize = `${Random.randfloat(backgroundData.letterSizes.max, backgroundData.letterSizes.min)}em`
 
-        letterDiv.style.color = Random.choice(backgroundData.letterColors);
+        letterDiv.style.color = Random.choice(backgroundData.letterColors); 
 
         letterDiv.classList.add("letter");
         backgroundDiv.appendChild(letterDiv);
@@ -33,9 +33,6 @@ window.addEventListener("resize", generateBackground);
 
 
 const backgroundData = {
-    backgroundColors: [
-        "#50cdfa",
-    ],
     letterColors: [
         "#DBFCFF",
         "#A6CFD5",

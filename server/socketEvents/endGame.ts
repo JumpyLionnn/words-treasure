@@ -1,16 +1,13 @@
 async function endGame(game: any) {
-
-    let players = await db.all("SELECT * FROM players WHERE gameId = ?", game.id);
-    
+    let players = await getAllPlayersByGameId(game.id);
 
     let results: {scores: Player[]} = {scores: []};
 
     //calculating score
-
     let words: {[player: string]: {words: string[], name: string, points: number}} = {};
     for(let i = 0; i < players.length; i++){
         words[players[i].id] = {words: [], name: players[i].name, points: players[i].points};
-        let playerWords = await db.all("SELECT word FROM playersWords WHERE playerId = ?",[players[i].id]);
+        let playerWords = await getAllPlayersWords(players[i].id);
         for(let j = 0; j < playerWords.length; j++){
             words[players[i].id].words.push(playerWords[j].word);
         }
@@ -20,7 +17,8 @@ async function endGame(game: any) {
         for(let i = 0; i < words[player].words.length; i++){
             let unique = true;
             for(let otherPlayer in words){
-                if(player === otherPlayer){continue;}
+                if(player === otherPlayer) continue;
+                if(!unique) break;
                 for(let j = 0; j < words[otherPlayer].words.length; j++){
                     if(words[otherPlayer].words[j] === words[player].words[i]){
                         unique = false;
@@ -28,11 +26,9 @@ async function endGame(game: any) {
                     }
                 }
             }
+            points += gameScoring.base;    
             if(unique){
-                points += 10;
-            }
-            else{
-                points += 5;    
+                points += gameScoring.uniqueBonus;
             }
         }
         
@@ -46,11 +42,9 @@ async function endGame(game: any) {
         return b.score - a.score;
     });
 
-    await db.run("UPDATE games SET state = 'ended' WHERE id = ?",[game.id]);
+    setGameState(game.id, "ended");
 
-    for(let i = 0; i < players.length; i++){
-        db.run("DELETE FROM playersWords WHERE playerId = ?", [players[i].id]);
-    }
+    deleteGamesWords(game.id);
 
     io.to(game.id).emit("ended", results);
 }

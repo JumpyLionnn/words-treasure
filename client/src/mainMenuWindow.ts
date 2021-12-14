@@ -1,8 +1,7 @@
 
 // main menu buttons
-const hostGameButton = document.getElementById("hostGameButton") as HTMLButtonElement;
-
-const joinGameButton = document.getElementById("joinGameButton") as HTMLButtonElement;
+const hostGameButton = document.getElementById("host-game-button") as HTMLButtonElement;
+const joinGameButton = document.getElementById("join-game-button") as HTMLButtonElement;
 
 
 

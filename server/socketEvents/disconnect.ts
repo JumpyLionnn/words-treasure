@@ -19,11 +19,11 @@ async function disconnect(socket: any) {
                 await db.run("UPDATE games SET host = ? WHERE id = ?", [newHost, game.id]);
                 if(game.state === "ended"){
                     db.run("UPDATE games SET state = 'waiting' WHERE id = ?", [game.id]);
-                        let hostSocket = getSocket(newHost);
+                        let hostSocket = io.sockets.sockets.get(newHost);
                         hostSocket.emit("gameCreated", {
                             code: game.code,
                         maxPlayers: game.maxPlayers,
-                        diff: game.diff,
+                        difficulty: game.difficulty,
                         duration: game.duration
                     });
                     hostSocket.leave(game.id + "-playAgain");
@@ -37,7 +37,7 @@ async function disconnect(socket: any) {
 
                     io.to(game.id + "-playAgain").emit("joinedGame", {
                         players: playerNames,
-                        diff: game.diff,
+                        difficulty: game.difficulty,
                         duration: game.duration,
                         maxPlayers: game.maxPlayers,
                         code: game.code,

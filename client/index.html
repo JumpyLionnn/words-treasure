@@ -5,64 +5,50 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="min.css">
-    <!--
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="general.css">
-    -->
+    <link rel="stylesheet" href="style/style.min.css">
 
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/x-icon">
 
     <script src="/socket.io/socket.io.js" defer></script>
 
-    <script src="/index.js" defer></script>
+    <script src="src/index.js" defer></script>
 
     <title>Words Treasure</title>
 </head>
 
 <body>
-    <div id="background" class="background">
-
-    </div>
-
-    <div class="contextMenu" id="contextMenu">
-        <button class="contextMenuButton" id="contextMenuCopyButton">Copy</button>
-        <button class="contextMenuButton" id="contextMenuPasteButton">Paste</button>
-    </div>
+    <div id="background" class="background"></div>
 
     <div class="alert" id="alert" style="display: none;">
-        <div class="alertCard" id="alertCard">
-            <button class="alertCloseButton" id="alertCloseButton">X</button>
-            <p class="alertText" id="alertText"></p>
-            <button class="alertButton" id="alertOkButton">Ok</button>
-            <div id="yesnoAlert">
-                <button class="alertButton" id="alertNoButton">No</button>
-                <button class="alertButton" id="alertYesButton">Yes</button>
+        <div class="alert-card">
+            <button class="alert-close-button" id="alert-close-button">X</button>
+            <p class="alert-text" id="alert-text"></p>
+            <button class="alert-button" id="alert-ok-button">Ok</button>
+            <div id="dialog-alert">
+                <button class="alert-button" id="alert-no-button">No</button>
+                <button class="alert-button" id="alert-yes-button">Yes</button>
             </div>
         </div>
     </div>
-    <div class="alert" id="waitingForHost" style="display: none;">
-        <div class="alertCard">
-            <button class="alertCloseButton" id="waitingForHostCloseButton">X</button>
-            <p class="alertText" id="waitingForHostText">Waiting for the host...</p>
-            <button class="alertButton" id="waitingForHostCancelButton">Cancel</button>
+    <div class="alert" id="waiting-for-host" style="display: none;">
+        <div class="alert-card">
+            <button class="alert-close-button" id="waiting-for-host-close-button">X</button>
+            <p class="alert-text" id="waiting-for-host-text">Waiting for the host...</p>
+            <button class="alert-button" id="waiting-for-host-cancel-button">Cancel</button>
         </div>
     </div>
-    <div class="mainMenu window">
-        <!--logo
-        
-        -->
 
-        <div class="menuElementsDiv" id="menuElementsDiv">
-            <div class="title">
-                <h1 class="wordsTitle">Words</h1>
-                <h1 class="treasureTitle">Treasure</h1>
+    <div id="main-menu" class="window">
+        <div id="menu-elements-div">
+            <div id="title">
+                <h1 id="words-title">Words</h1>
+                <h1 id="treasure-title">Treasure</h1>
             </div>
-            <div class="mainMenuButtons">
-                <button class="menuBtn block" id="hostGameButton">Host a Game</button>
-                <button class="menuBtn block" id="joinGameButton">Join a Game</button>
+            <div id="main-menu-buttons">
+                <button class="menu-button" id="host-game-button">Host a Game</button>
+                <button class="menu-button" id="join-game-button">Join a Game</button>
             </div>
-            <div class="howToPlay">
+            <div id="how-to-play">
                 <h2>How To Play?</h2>
                 <p>
                     Create a room for the game and choose your name, difficuly, duration and the max players.
@@ -87,13 +73,13 @@
         </div>
     </div>
 
-    <div class="hostGame window" hidden>
-        <div class="center-all hostGameElementsDiv">
+    <div id="host-game" class="window" hidden>
+        <div class="center-all" id="host-game-elements-div">
             <div>
                 <h3>Name</h3>
-                <input type="text" name="name" id="hostNameTextbox" class="textBox" placeholder="name" autocomplete="off" maxlength="10">
+                <input type="text" name="name" id="host-name-textbox" class="textbox" placeholder="name" autocomplete="off" maxlength="10">
             </div>
-            <div class="hostDropDown">
+            <div class="dropdown">
                 <h3>Duration</h3>
                 <select id="duration" name="Duration">
                         <option value="2">2 minutes</option>
@@ -109,15 +95,15 @@
             </div>
             <div>
                 <h3>Difficulty</h3>
-                <div class="diffSelection hostGameElement">
-                    <button data-diff="easy" class="diffBtn btn">Easy</button>
-                    <button data-diff="normal" class="diffBtn btn diffSelected">Normal</button>
-                    <button data-diff="hard" class="diffBtn btn">Hard</button>
+                <div id="difficulty-selection">
+                    <button data-difficulty="easy" class="difficulty-button button">Easy</button>
+                    <button data-difficulty="normal" class="difficulty-button button difficulty-selected">Normal</button>
+                    <button data-difficulty="hard" class="difficulty-button button">Hard</button>
                 </div>
             </div>
-            <div class="hostDropDown">
+            <div class="dropdown">
                 <h3>Max players</h3>
-                <select id="maxPlayers" name="Max Players">
+                <select id="max-players" name="Max Players">
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
@@ -131,82 +117,81 @@
             </div>
 
 
-            <div class="hostButtons">
-                <button class="createBtn hostGameElement" id="createBtn">Create</button>
-                <button class="mainMenuBtn hostGameElement" id="mainMenuButton">Main Menu</button>
+            <div id="host-buttons">
+                <button id="create-button">Create</button>
+                <button id="main-menu-button">Main Menu</button>
             </div>
         </div>
     </div>
 
-    <div class="joinGame window" hidden>
-        <div class="joinGameElementsDiv center-all">
+    <div id="join-game" class="window" hidden>
+        <div id="join-game-elements-div" class="center-all">
             <div>
                 <h3>Name</h3>
-                <input type="text" name="name" id="joinNameTextbox" class="textBox" placeholder="name" autocomplete="off" maxlength="10">
+                <input type="text" name="name" id="join-name-textbox" class="textbox" placeholder="name" autocomplete="off" maxlength="10">
             </div>
             <div>
                 <h3>Code</h3>
-                <input type="text" name="code" id="codeTextbox" class="textBox" placeholder="code" autocomplete="off" maxlength="5">
+                <input type="text" name="code" id="code-textbox" class="textbox" placeholder="code" autocomplete="off" maxlength="5">
             </div>
 
-            <div class="joinButtons">
-                <button id="joinBtn">Join</button>
-                <button class="mainMenuBtn" id="mainMenuButton">Main Menu</button>
+            <div id="join-buttons">
+                <button id="join-button">Join</button>
+                <button id="main-menu-button">Main Menu</button>
             </div>
         </div>
     </div>
 
-    <div class="waitingRoom window" hidden>
-        <div class="waitingRoomComponents center-all">
-            <div class="gameProperties">
+    <div id="waiting-room" class="window" hidden>
+        <div id="waiting-room-components" class="center-all">
+            <div id="game-properties">
                 <div>
                     <span>Difficulty: </span>
-                    <span class="diffDiv" id="diffDiv"></span>
+                    <span id="difficulty-display"></span>
                 </div>
 
                 <div>
                     <span>Duration: </span>
-                    <span class="durationDiv" id="durationDiv"></span>
+                    <span id="duration-display"></span>
                 </div>
             </div>
-            <div class="waitingRoomElements">
+            <div id="waiting-room-elements">
 
-                <h2 class="playersTitle margin-auto">Players</h2>
+                <h2 id="players-title" class="margin-auto">Players</h2>
 
-                <div class="players" id="players">
+                <div id="players">
                 </div>
 
-
-                <p id="playersNumber" class="playersNumber"></p>
-                <button class="startGameBtn margin-auto" id="startGameBtn" disabled>
-                    <span class="toolTip">
+                <p id="players-counter"></p>
+                <button class="margin-auto" id="start-game-button" disabled>
+                    <span class="tooltip">
                         You can not play alone.
                     </span>
                     Start Game
                 </button>
-                <div class="gameCode">
-                    <div class="gameCodeInputContainer" id="gameCodeInputContainer">
-                        <input type="text" name="" id="gameCodeInput" class="gameCodeInput" readonly>
-                        <div class="gameCodeOverlay">Hover to reveal the code!</div>
+                <div id="game-code">
+                    <div id="game-code-input-container">
+                        <input type="text" name="" id="game-code-input" readonly>
+                        <div id="game-code-overlay">Hover to reveal the code!</div>
                     </div>
-                    <button class="gameCodeCopyButton" id="gameCodeCopyButton">Copy</button>
+                    <button id="game-code-copy-button">Copy</button>
                 </div>
             </div>
             <div></div>
         </div>
-        <button class="disconnectButton" id="disconnectButton">Leave</button>
+        <button id="disconnect-button">Leave</button>
     </div>
 
-    <div class="inGame window" hidden>
-        <div class="inGameElements center-h">
-            <div class="inGameInputs">
-                <div class="timeRemaining" id="timeRemaining"></div>
-                <div class="wordDisplay" id="wordDisplay"></div>
-                <input type="text" name="wordInput" class="wordInput" id="wordInput" autocomplete="off">
-                <button class="submitWord" id="submitWord">Submit</button>
-                <div class="message" id="inGameMessage"></div>
+    <div id="in-game" class="window" hidden>
+        <div id="in-game-elements" class="center-h">
+            <div id="in-game-inputs">
+                <div id="time-remaining"></div>
+                <div id="word-display"></div>
+                <input type="text" name="word-input" id="word-input" autocomplete="off">
+                <button id="submit-word">Submit</button>
+                <div id="in-game-message"></div>
             </div>
-            <div class="currentWords" id="currentWords">
+            <div id="current-words">
                 <div class="column">
                     <div>
                         <div></div>
@@ -214,13 +199,13 @@
                 </div>
             </div>
         </div>
-        <button class="disconnectButton" id="disconnectButton">Leave</button>
+        <button id="disconnect-button">Leave</button>
     </div>
 
-    <div class="score window" hidden>
-        <div class="scoreWindowElements center-all">
+    <div id="score" class="window" hidden>
+        <div id="score-window-elements" class="center-all">
             <h2>Scores</h2>
-            <table class="scoreTable" id="scoreTable">
+            <table id="score-table">
                 <thead>
                     <tr>
                         <td>#</td>
@@ -230,9 +215,9 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            <div class="scoreScreenButtons">
-                <button class="mainMenuBtn" id="disconnectButton">Main Menu</button>
-                <button id="playAgainButton">play again</button>
+            <div id="score-screen-buttons">
+                <button id="disconnect-button">Main Menu</button>
+                <button id="play-again-button">play again</button>
             </div>
 
         </div>

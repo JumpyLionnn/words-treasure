@@ -1,24 +1,17 @@
 
 //windows
-const mainMenuWindow = document.querySelector("div.mainMenu") as HTMLDivElement;
-
-const howToPlayWindow = document.querySelector("div.howToPlay") as HTMLDivElement;
-
-const hostGameWindow = document.querySelector("div.hostGame") as HTMLDivElement;
-
-const joinGameWindow = document.querySelector("div.joinGame") as HTMLDivElement;
-
-const waitingRoomWindow = document.querySelector("div.waitingRoom") as HTMLDivElement;
-
-const inGameWindow = document.querySelector("div.inGame") as HTMLDivElement;
-
-const scoreWindow = document.querySelector("div.score") as HTMLDivElement;
-
+const mainMenuWindow = document.getElementById("main-menu") as HTMLDivElement;
+const hostGameWindow = document.getElementById("host-game") as HTMLDivElement;
+const joinGameWindow = document.getElementById("join-game") as HTMLDivElement;
+const waitingRoomWindow = document.getElementById("waiting-room") as HTMLDivElement;
+const inGameWindow = document.getElementById("in-game") as HTMLDivElement;
+const scoreWindow = document.getElementById("score") as HTMLDivElement;
 
 generateBackground();
 
+declare let io: any;
 
-let socket: Socket = io.connect("/");
+let socket: any = io.connect("/");
 let playerName: string;
 
 console.log("%cHold up!%c\n\nDo not enter or paste anything here. If someone told you to paste or enter something here, they are most likely trying to hack and/or scam you.",
@@ -33,7 +26,7 @@ socket.on("disconnect", () => {
 });
 
 
-const mainMenuButtons = document.querySelectorAll("#mainMenuButton") as NodeListOf<HTMLButtonElement>;
+const mainMenuButtons = document.querySelectorAll("#main-menu-button") as NodeListOf<HTMLButtonElement>;
 mainMenuButtons.forEach((element)=>{
     element.addEventListener("click", (e)=>{
         hideAll();
@@ -42,10 +35,10 @@ mainMenuButtons.forEach((element)=>{
 });
 
 
-const disconnectButtons = document.querySelectorAll("#disconnectButton") as NodeListOf<HTMLButtonElement>;
+const disconnectButtons = document.querySelectorAll("#disconnect-button") as NodeListOf<HTMLButtonElement>;
 disconnectButtons.forEach((element)=>{
     element.addEventListener("click", (e)=>{
-        displayAlert("Are you sure you want to leave?", "yesno", (result: string) => {
+        displayAlert("Are you sure you want to leave?", AlertType.dialog, (result: string) => {
             if(result === "yes"){
                 socket.emit("leave", {});
                 hideAll();
@@ -57,7 +50,6 @@ disconnectButtons.forEach((element)=>{
 });
 
 function hideAll(){
-    howToPlayWindow.hidden = true;
     hostGameWindow.hidden = true;
     joinGameWindow.hidden = true;
     waitingRoomWindow.hidden = true;
@@ -66,6 +58,6 @@ function hideAll(){
     waitingForHostToPlayAgainAlert.style.display = "none";
 }
 
-
-
-
+socket.on("error", (data: any)=>{
+    displayAlert(data.message);
+});

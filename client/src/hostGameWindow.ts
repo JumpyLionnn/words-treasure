@@ -1,47 +1,34 @@
-/// <reference path=".d.ts" />
 /// <reference path="main.ts" />
 
 // host game buttons
+const durationDropdown = document.getElementById("duration") as HTMLSelectElement;
+const maxPlayersDropdown = document.getElementById("max-players") as HTMLSelectElement;
+const difficultyButtons = document.querySelectorAll("button.difficulty-button") as NodeListOf<HTMLButtonElement>;
 
-const durationDropDown = document.getElementById("duration") as HTMLSelectElement;
+const createButton = document.getElementById("create-button") as HTMLButtonElement;
 
-const maxPlayersDropDown = document.getElementById("maxPlayers") as HTMLSelectElement;
+let difficultySelection = "normal";
 
-const diffButtons = document.querySelectorAll("button.diffBtn") as NodeListOf<HTMLButtonElement>;
-
-diffButtons.forEach((element)=>{
+difficultyButtons.forEach((element)=>{
     element.addEventListener("click", ()=>{
-        diffSelection = element.dataset.diff as string;
-        diffButtons.forEach((element)=>{
-            element.classList.remove("diffSelected");
+        difficultySelection = element.dataset.difficulty as string;
+        difficultyButtons.forEach((element)=>{
+            element.classList.remove("difficulty-selected");
         });
-        element.classList.add("diffSelected");
+        element.classList.add("difficulty-selected");
     });
 });
 
-const hostNameTextbox = document.getElementById("hostNameTextbox") as HTMLInputElement;
+const hostNameTextbox = document.getElementById("host-name-textbox") as HTMLInputElement;
 
 hostNameTextbox.addEventListener("input", ()=>{
     hostNameTextbox.value = hostNameTextbox.value.replace(/[^a-zA-Z0-9 ]/g,"");
 });
 
-const createButton = document.getElementById("createBtn") as HTMLButtonElement;
-
-
-
-let diffSelection = "normal";
-
-let hostGameEnterKeyUpdated = false;
-
 createButton.addEventListener("click", createGame);
 
-socket.on("hostGameError", (data)=>{
-    displayAlert(data.message);
-});
-
-socket.on("gameCreated", (data)=>{
+socket.on("game-created", (data: any)=>{
     window.removeEventListener("keydown", hostGameKeyDown);
-    window.removeEventListener("keyup", hostGameKeyUp);
     hideAll();
     waitingRoomWindow.hidden = false;
     data.players = [playerName];
@@ -53,26 +40,25 @@ function startHostGameWindow(){
     hostNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
     const settings = JSON.parse(window.localStorage.getItem("word-game-settings") || "{}");
     if(settings.duration){
-        durationDropDown.value = settings.duration;
+        durationDropdown.value = settings.duration;
     }
-    if(settings.diff){
-        diffSelection = settings.diff;
-        diffButtons.forEach((element)=>{
-            if(element.dataset.diff === settings.diff){
-                element.classList.add("diffSelected");
+    if(settings.difficulty){
+        difficultySelection = settings.difficulty;
+        difficultyButtons.forEach((element)=>{
+            if(element.dataset.difficulty === settings.difficulty){
+                element.classList.add("difficulty-selected");
             }
             else{
-                element.classList.remove("diffSelected");
+                element.classList.remove("difficulty-selected");
             }
         });
     }
     window.addEventListener("keydown", hostGameKeyDown);
-    window.addEventListener("keyup", hostGameKeyUp);
 }
 
 function createGame(){
-    let duration = durationDropDown.selectedIndex + 2;
-    let maxPlayers = maxPlayersDropDown.selectedIndex + 2;
+    let duration = durationDropdown.selectedIndex + 2;
+    let maxPlayers = maxPlayersDropdown.selectedIndex + 2;
     playerName = hostNameTextbox.value.trim();
 
     if(playerName.length > 10 || playerName.length < 2){
@@ -81,30 +67,23 @@ function createGame(){
     else{
         window.localStorage.setItem("word-game-settings", JSON.stringify({
             duration: duration.toString(), 
-            diff: diffSelection, 
+            difficulty: difficultySelection, 
         }));
         window.localStorage.setItem("word-game-name", playerName);
 
         socket.emit("host", {
             duration: duration,
             maxPlayers: maxPlayers,
-            diff: diffSelection,
+            difficulty: difficultySelection,
             name: playerName
         });
     }
 }
 
 
-function hostGameKeyDown(e: any){
-    if(e.key === "Enter" && hostGameEnterKeyUpdated === false){
+function hostGameKeyDown(e: KeyboardEvent){
+    if(e.key === "Enter" && (!e.repeat)){
         createGame();
-        hostGameEnterKeyUpdated = true;
-    }
-}
-
-function hostGameKeyUp(e: any){
-    if(e.key === "Enter"){
-        hostGameEnterKeyUpdated = false;
     }
 }
 

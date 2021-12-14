@@ -30,20 +30,16 @@
     margin: 0 auto;
 }
 
-.block {
-    display: block;
-}
-
-.btn {
+.button {
     border-radius: 4px;
     padding: 4px;
 }
 
-.btn:focus {
+.button:focus {
     outline: none;
 }
 
-.textBox {
+.textbox {
     width: 100%;
     border-radius: 4px;
     text-align: center;

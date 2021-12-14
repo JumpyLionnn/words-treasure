@@ -1,0 +1,14 @@
+{
+    "incorrectWordPrice": {
+        "easy": 1,
+        "normal": 3,
+        "hard": 4
+    },
+    "wordPlacePoints": {
+        "1": 5,
+        "2": 3,
+        "3": 1
+    },
+    "base": 5,
+    "uniqueBonus": 2
+}

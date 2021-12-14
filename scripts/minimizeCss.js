@@ -2,7 +2,7 @@ const fs = require("fs");
 
 let css = "";
 
-let path = "../client";
+let path = "client";
 
 let filesNumber = 0;
 
@@ -45,7 +45,7 @@ css = css.replace(startBracketsRegex, "");
 
 css = css.replace(endBracketsRegex, "");
 
-fs.writeFileSync(path + "/" + 'style.min.css', css, 'utf-8');
+fs.writeFileSync(path + "/build/style/style.min.css", css, 'utf-8');
 
 console.log(`Successfully minified ${filesNumber} css files`);
 console.timeEnd("in");

@@ -1,90 +1,69 @@
 async function hostHandler(data: any, socket: any){
-
-    let player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
-    if(player){
-        socket.emit("hostGameError", {message: "this client is already in a game."});
-        return;
+    if(await isThePlayerInAGame(socket.id)){
+        return socket.emit("error", {message: "this client is already in a game."});
     }
     // getting data
     let name: string;
     if(typeof data.name === "string"){
         name = data.name.trim();
         if(name.length > 10 || name.length < 2){
-            socket.emit("hostGameError", {message: "The name length is not in the range of 2 - 10."});
-            return;
+            return socket.emit("error", {message: "The name length is not in the range of 2 - 10."});
         }
         if(nameVefication.test(name)){
-            socket.emit("hostGameError", {message: "The name must only have letters, digits or spaces."});
-            return;
+            return socket.emit("error", {message: "The name must only have letters, digits or spaces."});
         }
     }
     else{
-        socket.emit("hostGameError", {message: "The name is not a string."});
-        return;
+        return socket.emit("error", {message: "The name is not a string."});
     }
-    let diff: string;
-    if(typeof data.diff === "string"){
-        diff = data.diff;
-        if(!(diff === "hard" || diff === "normal" || diff === "easy")){
-            socket.emit("hostGameError", {message: "The difficulty is not hard normal or easy"});
-            return;
-        }
+    
+    let difficulty = data.difficulty;
+    if(!(difficulty === "hard" || difficulty === "normal" || difficulty === "easy")){
+        return socket.emit("error", {message: "The difficulty is not hard normal or easy"});
     }
-    else{
-        socket.emit("hostGameError", {message: "The difficulty is not a string"});
-        return;
-    }
-
+    
     let maxPlayers: number;
     if(typeof data.maxPlayers === "number"){
         maxPlayers = data.maxPlayers;
-        if(maxPlayers > 10 || maxPlayers < 2){
-            socket.emit("hostGameError", {message: "The maxPlayers is not in range of 2 - 10"});
-            return;
+        if((maxPlayers > 10 || maxPlayers < 2) && isInt(maxPlayers)){
+            return socket.emit("error", {message: "The maxPlayers is not in range of 2 - 10"});
         }
     }
     else{
-        socket.emit("hostGameError", {message: "The maxPlayer is not a number"});
-        return;
+        return socket.emit("error", {message: "The maxPlayer is not a number"});
     }
 
     let duration: number;
     if(typeof data.duration === "number"){
         duration = data.duration;
-        if(duration > 10 || duration < 2){
-            socket.emit("hostGameError", {message: "The duration is not in range of 2 - 10"});
-            return;
+        if((duration > 10 || duration < 2) && isInt(maxPlayers)){
+            return socket.emit("error", {message: "The duration is not in range of 2 - 10"});
         }
     }
     else{
-        socket.emit("hostGameError", {message: "The duration is not a number"});
-        return;
+        return socket.emit("error", {message: "The duration is not a number"});
     }
 
     // gemerate a random game code
     let code = makeCode(5);
-    let result = await db.get("SELECT * FROM games WHERE code = ?", [code]);
-    while (result){
-        let code = makeCode(5);
-        result = await db.get("SELECT * FROM games WHERE code = ?", [code]);
+    while (!(await isGameCodeUnique(code))){
+        code = makeCode(5);
     }
 
     // choose a random word
-    let word = await getRandomWord(diff);
+    let word = await getRandomWord(difficulty);
 
-
-    await db.run(`INSERT INTO games(code, state, host, duration, diff, maxPlayers, word) VALUES
-        (?, 'waiting', ?, ?, ?, ?, ?);`, [code, socket.id, duration, diff, maxPlayers, word]);
-
-    let game = await db.get(`SELECT * FROM games WHERE code = ?`, [code]);
+    await addGameToDatabase(code, socket.id, duration, difficulty, maxPlayers, word);
+    
+    let game = await getGameByCode(code);
 
     socket.join(game.id);
 
-    await db.run(`INSERT INTO players(id, gameId, name) VALUES (?, ?, ?)`, [socket.id, game.id, name])
-    socket.emit("gameCreated", {
+    addPlayerToDatabase(socket.id, game.id, name);
+    socket.emit("game-created", {
         code,
         maxPlayers,
-        diff,
+        difficulty,
         duration
     });
 }

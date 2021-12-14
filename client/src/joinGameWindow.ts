@@ -1,14 +1,11 @@
 /// <reference path="main.ts" />
 
 // join game elements
+const codeTextbox = document.getElementById("code-textbox") as HTMLInputElement;
+const joinButton = document.getElementById("join-button") as HTMLButtonElement;
+const joinNameTextbox = document.getElementById("join-name-textbox") as HTMLInputElement;
 
-const codeTextbox = document.getElementById("codeTextbox") as HTMLInputElement;
-
-const joinButton = document.getElementById("joinBtn") as HTMLButtonElement;
-
-const joinNameTextbox = document.getElementById("joinNameTextbox") as HTMLInputElement;
-
-let joinGameEnterKeyUpdated = false;
+let code: string = "";
 
 joinNameTextbox.addEventListener("input", ()=>{
     joinNameTextbox.value = joinNameTextbox.value.replace(/[^a-zA-Z0-9 ]/g,"");
@@ -18,27 +15,18 @@ codeTextbox.addEventListener("input", ()=>{
     codeTextbox.value = codeTextbox.value.toUpperCase().replace(/[^A-Z]+/g,"");
 });
 
-let code: string = "";
-
-socket.on("joinGameError", (data)=>{
-    displayAlert(data.message);
-});
-
-socket.on("joinedGame", (data: any)=>{
+socket.on("joined-game", (data: any)=>{
     window.removeEventListener("keydown", joinGameKeyDown);
-    window.removeEventListener("keyup", joinGameKeyUp);
     hideAll();
     waitingRoomWindow.hidden = false;
     data.code = code;
     startWaitingRoom(data, false);
-})
-
+});
 
 function startJoinGameWindow(){
     codeTextbox.value = "";
     joinNameTextbox.value = window.localStorage.getItem("word-game-name") || "";
     window.addEventListener("keydown", joinGameKeyDown);
-    window.addEventListener("keyup", joinGameKeyUp);
 }
 
 joinButton.addEventListener("click", joinGame);
@@ -62,16 +50,8 @@ function joinGame(){
     }
 }
 
-
-function joinGameKeyDown(e: any){
-    if(e.key === "Enter" && joinGameEnterKeyUpdated === false){
+function joinGameKeyDown(e: KeyboardEvent){
+    if(e.key === "Enter" && (!e.repeat)){
         joinGame();
-        joinGameEnterKeyUpdated = true;
-    }
-}
-
-function joinGameKeyUp(e: any){
-    if(e.key === "Enter"){
-        joinGameEnterKeyUpdated = false;
     }
 }
