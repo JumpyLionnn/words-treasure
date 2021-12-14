@@ -6,7 +6,7 @@
     "scripts": {
         "start": "node server/build/index.js",
         "test": "nodemon server/build/index.js",
-        "build": "cd client && tsc && cd ../server && tsc",
+        "build": "cd client && tsc && cd ../server && tsc && cd ../ && node scripts/minimizeCss.js ",
         "rebuildDB": "node scripts/buildDB.js"
     },
     "repository": {
