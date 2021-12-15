@@ -3,7 +3,7 @@ async function startDatabase() {
         filename: "./server/database.db",
         driver: sqlite3.Database
     });
-    
+
     await db.get(`CREATE TABLE IF NOT EXISTS games(
         id INTEGER PRIMARY KEY,
         code TEXT,
@@ -18,15 +18,15 @@ async function startDatabase() {
 
     await db.run(`CREATE TABLE IF NOT EXISTS players(
         id TEXT,
-        gameId INTEGER,
+        gameId INTEGER REFERENCES games(id) ON DELETE CASCADE,
         name VARCHAR(10),
         points INTEGER DEFAULT 0,
         playAgain INTEGER
     )`);
 
     await db.run(`CREATE TABLE IF NOT EXISTS playersWords(
-        playerId TEXT,
-        gameId INTEGER,
+        playerId TEXT REFERENCES players(id) ON DELETE CASCADE,
+        gameId INTEGER REFERENCES games(id) ON DELETE CASCADE,
         word VARCHAR(40)
     )`);
 

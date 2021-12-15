@@ -1,51 +1,32 @@
 async function disconnect(socket: any) {
-    let player = await db.get("SELECT * FROM players WHERE id = ?", [socket.id]);
-    if(player){
-        await db.run("DELETE FROM playersWords WHERE playerId = ?", [socket.id]);
-        await db.run("DELETE FROM players WHERE id = ?", [socket.id]);
-        if(io.sockets.sockets[socket.id]){
-            io.sockets.sockets[socket.id].leave(player.gameId);
-            io.sockets.sockets[socket.id].leave(player.gameId + "-playAgain");
-        }
-
-        let players = await db.all("SELECT * FROM players WHERE gameId = ?", [player.gameId]);
+    let player = await getPlayerById(socket.id);
+    if(player){ 
+        await deletePlayer(player.id);
+        socket.leave(player.gameId);
+        socket.leave(player.gameId + "-playAgain");
+        let game = await getGameById(player.gameId);
+        let players = await getAllPlayersByGameId(game.id);
         if(players.length === 0){
-            await db.run("DELETE FROM games WHERE id = ?", [player.gameId]);
+            deleteGameById(game.id);
+        }
+        else if(players.length === 1 && game.state === "started"){
+            let lastPlayerSocket = io.sockets.sockets.get(players[0].id);
+            lastPlayerSocket.emit("server-disconnect", {message: "You disconnected since all of the players left the game."});
+            disconnect(lastPlayerSocket);
         }
         else{
-            let game = await db.get("SELECT * FROM games WHERE id = ?", [player.gameId]);
             if(game.host === socket.id){
-                let newHost = players[0].id;
-                await db.run("UPDATE games SET host = ? WHERE id = ?", [newHost, game.id]);
+                let newHostId = players[0].id;
+                let newHost = await getPlayerById(newHostId);
+                setNewHost(game.id, newHostId);
                 if(game.state === "ended"){
-                    db.run("UPDATE games SET state = 'waiting' WHERE id = ?", [game.id]);
-                        let hostSocket = io.sockets.sockets.get(newHost);
-                        hostSocket.emit("gameCreated", {
-                            code: game.code,
-                        maxPlayers: game.maxPlayers,
-                        difficulty: game.difficulty,
-                        duration: game.duration
-                    });
-                    hostSocket.leave(game.id + "-playAgain");
-                    let playerNames: string[] = [];
-                    for(let i = 0; i < players.length; i++){
-                        if(players[i].playAgain === 1 && !players[i].id === newHost){
-                            playerNames.push(players[i].name);
-                            hostSocket.emit("playerJoined", {name: players[i].name});
-                        } 
+                    if(newHost.playAgain === 1){
+                        await removePlayAgainMark(newHost.id);
+                        await restartGame(game, newHost);
                     }
-
-                    io.to(game.id + "-playAgain").emit("joinedGame", {
-                        players: playerNames,
-                        difficulty: game.difficulty,
-                        duration: game.duration,
-                        maxPlayers: game.maxPlayers,
-                        code: game.code,
-                        host: player.name
-                    });
                 }
             }
-            io.to(player.gameId).emit("playerLeft", {name: player.name, host: players[0].name});
+            io.to(player.gameId).emit("player-left", {name: player.name, host: players[0].name});
         }
     }
     

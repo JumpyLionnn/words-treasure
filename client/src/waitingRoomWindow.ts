@@ -18,6 +18,8 @@ let currentPlayers: string[] = [];
 let maxPlayers: number;
 let playersNumber: number = 0;
 
+let host: string;
+
 startButton.addEventListener("click", ()=>{
     socket.emit("start-game", {});
 });
@@ -35,14 +37,14 @@ gameCodeCopyButton.addEventListener("click", ()=>{
 
 socket.on("player-joined", (data: any)=>{
     currentPlayers.push(data.name);
-    const playerSpan = playersList.children[playersNumber].children[0] as HTMLLIElement;
+    const playerSpan = playersList.children[playersNumber].querySelector("#player-name") as HTMLSpanElement;
     playerSpan.innerText = data.name;
     playersNumber++;    
     playersCounter.innerText = playersNumber + "/" + maxPlayers;
     startButton.disabled = false;
 });
 
-socket.on("playerLeft", (data: any)=>{
+socket.on("player-left", (data: any)=>{
     let nameIndex = currentPlayers.indexOf(data.name);
     if(nameIndex === -1){
         return;
@@ -52,19 +54,20 @@ socket.on("playerLeft", (data: any)=>{
     playersCounter.innerText = playersNumber + "/" + maxPlayers;
     let listElelemnts = playersList.children;
     for(let i = 0; i < listElelemnts.length; i++){
-        let player = listElelemnts[i] as HTMLDivElement;    
-        if(player.innerText === data.name){
+        let player = listElelemnts[i] as HTMLDivElement;
+        let playerNameSpan = player.querySelector("#player-name") as HTMLSpanElement;
+        if(playerNameSpan.innerText === data.name){
             player.innerHTML = "";
             const playerSpan = document.createElement("span");
             player.appendChild(playerSpan);
             playerSpan.innerText = "\n";
             player.classList.remove("host-player-name-li");
         }
-
-        if(player.innerText === playerName && data.host === playerName){
+        if(playerNameSpan.innerText === data.host && data.host !== host){
             startButton.style.visibility = "visible";
             player.appendChild(hostCrownImage);
             player.classList.add("host-player-name-li");
+            host = data.host;
         }
     }
     if(playersNumber === 1){
@@ -89,9 +92,10 @@ function startWaitingRoom(data: any, host: boolean){
         startButton.style.visibility = "visible";
     }
     else{
+        
         startButton.style.visibility = "hidden";
     }
-
+    host = data.host;
     maxPlayers = data.maxPlayers;
     playersNumber = data.players.length;
     playersCounter.innerText = playersNumber + "/" + maxPlayers;
@@ -116,15 +120,21 @@ function startWaitingRoom(data: any, host: boolean){
             playerLi.classList.add("host-player-name-li");
         }
         const playerNameSpan = document.createElement("span");
-        currentPlayers.push(data.players[i])
+        playerNameSpan.id = "player-name";
+        playerNameSpan.innerText = data.players[i];
+        playerLi.appendChild(playerNameSpan);
+        
+        currentPlayers.push(data.players[i]);
         if(data.players[i] === playerName){
-            playerNameSpan.innerText = data.players[i] + "(you)";
+            const youSpan = document.createElement("span");
+            youSpan.innerText = "(you)";
+            playerLi.appendChild(youSpan);
         }
         else{   
             playerNameSpan.innerText = data.players[i];
         }
-        playerLi.appendChild(playerNameSpan);
-        playerLi.classList.add("player-slot");
+
+        playerLi.id = "player-slot";
         playersList.appendChild(playerLi);
     }
     for(let i = 0; i < 30 - data.players.length; i++){
@@ -132,9 +142,10 @@ function startWaitingRoom(data: any, host: boolean){
         const emptyPlayerSpan = document.createElement("span");
         emplyPlayerLi.appendChild(emptyPlayerSpan);
         if(maxPlayers > i + data.players.length){
-            emplyPlayerLi.classList.add("player-slot");
+            emplyPlayerLi.id = "player-slot";
         }
         emptyPlayerSpan.innerText = "\n";
+        emptyPlayerSpan.id = "player-name";
         playersList.appendChild(emplyPlayerLi); 
     }
     let dots = "\n";

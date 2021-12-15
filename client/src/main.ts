@@ -25,6 +25,14 @@ socket.on("disconnect", () => {
     }
 });
 
+socket.on("server-disconnect", (data: any) => {
+    if(mainMenuWindow.hidden){
+        displayAlert(data.message);
+        hideAll();
+        mainMenuWindow.hidden = false;
+    }
+});
+
 
 const mainMenuButtons = document.querySelectorAll("#main-menu-button") as NodeListOf<HTMLButtonElement>;
 mainMenuButtons.forEach((element)=>{

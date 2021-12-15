@@ -4,7 +4,7 @@
 
 #waiting-room-components {
     display: grid;
-    grid-template-rows: 1fr 8fr 1fr;
+    grid-template-rows: 1fr 8fr;
     width: 30%;
 }
 
@@ -66,23 +66,21 @@
     align-items: center !important;
 }
 
-.player-slot {
+#player-slot {
+    position: relative;
     border-bottom: 1px white solid;
-    display: flex;
-    align-items: end;
-    justify-content: center;
-}
-
-.player-slot span {
-    margin-top: auto;
-}
-
-#players div {
     padding: .65em 0;
 }
 
-#players div img {
-    transform: translateY(.2em);
+#player-slot span {
+    margin-top: auto;
+}
+
+#player-slot img {
+    position: absolute;
+    top: -0.1em;
+    left: 50%;
+    transform: translateX(-50%);
     width: 1.6em;
     font-size: 1em;
 }

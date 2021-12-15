@@ -9,6 +9,9 @@ const currentWordsTable = document.getElementById("current-words") as HTMLDivEle
 let timeRemaining: number;
 let waitingForWords = [];
 
+
+let timer: NodeJS.Timer;
+
 wordInput.addEventListener("input", ()=>{
     inGameMessage.innerText = "\n";
     wordInput.value = wordInput.value.toLowerCase().replace(/[^a-z]+/g,"");
@@ -42,6 +45,7 @@ socket.on("word-result", (data: any)=>{
 });
 
 socket.on("ended", (data: any)=>{
+    clearInterval(timer);
     window.removeEventListener("keydown", inGameKeyDown);
     inGameWindow.hidden = true;
     scoreWindow.hidden = false;
@@ -60,7 +64,7 @@ function startInGameWindow(data: any){
 
     timeRemainingDisplay.innerText = data.duration + ":00";
     timeRemaining = data.duration * 60;
-    let timer  = setInterval(()=>{
+    timer = setInterval(()=>{
         timeRemaining--;
         let seconds = timeRemaining % 60;
 

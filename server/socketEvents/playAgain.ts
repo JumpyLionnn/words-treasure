@@ -10,51 +10,20 @@ async function playAgainHandler(data: any, socket: any) {
         return socket.emit("error", {message: "The game is active."});
     }
 
-    const players = await getAllPlayersByGameId(game.id);
-    let playerNames: string[] = [];
-    for(let i = 0; i < players.length; i++){
-        if(players[i].playAgain === 1){
-            playerNames.push(players[i].name);
-        }
-    }
-
+    
     if(player.id === game.host){
-        if(game.state === "waiting"){
-            return socket.emit("error", {message: "The game is in waiting room."});
-        }
-        markPlayerWithPlayAgain(player.id);
-
-        renewGame(game);
-
-        socket.emit("game-created", {
-            code: game.code,
-            maxPlayers: game.maxPlayers,
-            difficulty: game.difficulty,
-            duration: game.duration
-        });
-        for(let i = 0; i < playerNames.length; i++){
-            if(playerNames[i] !== player.name){
-                socket.emit("player-joined", {name: playerNames[i]});
-            }
-        }
-        playerNames.push(player.name);
-        io.to(game.id + "-playAgain").emit("joined-game", {
-            players: playerNames,
-            difficulty: game.difficulty,
-            duration: game.duration,
-            maxPlayers: game.maxPlayers,
-            code: game.code,
-            host: player.name
-        });
+        await restartGame(game, player);
     }
     else{
-        if(players.length === game.maxPlayers){
+        let playerNames = await getPlayersNamesThatPlayedAgain(game.id);
+
+        if(playerNames.length === game.maxPlayers){
             return socket.emit("error", {message: "Tha game is full."});
         }
 
         
-        for(let i = 0; i < players.length; i++){
-            if(players[i].name === player.name && player.playAgain === 1){
+        for(let i = 0; i < playerNames.length; i++){
+            if(playerNames[i] === player.name && player.playAgain === 1){
                 return socket.emit("error", {message: "You can not play again with this name since there is already a player with the same name."});
             }
         }
