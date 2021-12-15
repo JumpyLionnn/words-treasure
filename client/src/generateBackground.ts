@@ -3,17 +3,18 @@
 const backgroundDiv = document.getElementById("background") as HTMLDivElement;
 
 function generateBackground(){
+    console.time("background");
     backgroundDiv.innerHTML = "";
+    const width = backgroundDiv.clientWidth;
+    const height = backgroundDiv.clientHeight;
 
-    const screenWidth = backgroundDiv.clientWidth;
-    const screenHeight = backgroundDiv.clientHeight;
-    for (let i = 0; i < backgroundData.lettersNumber; i++){
+    for (let i = 0; i < (width * height / backgroundData.spaceForLetter); i++){
         const letterDiv = document.createElement("div");
         letterDiv.innerText = backgroundData.letters.charAt(Random.randint(backgroundData.letters.length));
         letterDiv.style.transform = `rotateZ(${Random.randint(0,360)}deg)`;
 
-        let posX = Random.randint(screenWidth);
-        let posY = Random.randint(screenHeight);
+        let posX = Random.randint(width);
+        let posY = Random.randint(height);
         
 
         letterDiv.style.top = `${posY}px`;
@@ -26,6 +27,7 @@ function generateBackground(){
         letterDiv.classList.add("letter");
         backgroundDiv.appendChild(letterDiv);
     }
+    console.timeEnd("background");
 }
 
 window.addEventListener("resize", generateBackground);
@@ -58,6 +60,6 @@ const backgroundData = {
         min: 2,
         max: 4
     },
-    lettersNumber: 200,
+    spaceForLetter: 9000,
     letters: "abcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 }
