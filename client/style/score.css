@@ -18,15 +18,30 @@
     text-align: center;
     width: 100%;
     background-color: rgba(80, 205, 250, .8);
+    border-collapse: collapse;
 }
 
 #score-table thead {
     font-size: 1.125em;
-    margin: 0;
+    width: calc( 100% - 1em);
+    border-bottom: 4px white solid;
 }
 
 #score-table tbody {
-    margin: 0;
+    display: block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 60vh;
+}
+
+#score-table thead,
+#score-table tbody tr {
+    display: table;
+    table-layout: fixed;
+}
+
+#score-table tbody tr {
+    width: 100%;
 }
 
 #score-table td {
@@ -35,15 +50,15 @@
     padding: .4em;
 }
 
-#score-table tbody tr:first-child td:nth-child(2) {
+#score-table tbody tr:first-child {
     color: #ffbb31;
 }
 
-#score-table tbody tr:nth-child(2) td:nth-child(2) {
+#score-table tbody tr:nth-child(2) {
     color: #a8a8a8;
 }
 
-#score-table tbody tr:nth-child(3) td:nth-child(2) {
+#score-table tbody tr:nth-child(3) {
     color: #ad4e1a;
 }
 

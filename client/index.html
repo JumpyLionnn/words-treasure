@@ -101,19 +101,9 @@
                     <button data-difficulty="hard" class="difficulty-button button">Hard</button>
                 </div>
             </div>
-            <div class="dropdown">
-                <h3>Max players</h3>
-                <select id="max-players" name="Max Players">
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10" selected>10</option>
-                </select>
+            <div>
+                <h3>Max players <span id="max-players-range-label">(2-30)</span></h3>
+                <input type="number" name="Max Players" class="textbox" id="max-players-input" min="2" max="30" value="5">
             </div>
 
 
@@ -212,7 +202,8 @@
                         <td>Score</td>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                </tbody>
             </table>
             <div id="score-screen-buttons">
                 <button id="disconnect-button">Main Menu</button>

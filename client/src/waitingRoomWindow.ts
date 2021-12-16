@@ -83,6 +83,7 @@ socket.on("game-started", (data: any)=>{
 
 
 function startWaitingRoom(data: any, host: boolean){
+    playersList.className = "";
     currentPlayers = [];
     hostCrownImage.remove();
     playersList.innerHTML = "";
@@ -106,6 +107,15 @@ function startWaitingRoom(data: any, host: boolean){
     else{
         startButton.disabled = false; 
     }
+
+    const remainder = maxPlayers % 3;
+    if(remainder === 1){
+        playersList.classList.add("one-remainder");
+    }
+    else if(remainder === 2){
+        playersList.classList.add("two-remainder");
+    }
+    
 
     durationDisplay.innerText = data.duration + ":00";
     difficultyDisplay.innerText = data.difficulty
@@ -137,30 +147,27 @@ function startWaitingRoom(data: any, host: boolean){
         playerLi.id = "player-slot";
         playersList.appendChild(playerLi);
     }
-    for(let i = 0; i < 30 - data.players.length; i++){
-        const emplyPlayerLi = document.createElement("div");
+    for(let i = 0; i < maxPlayers - data.players.length; i++){
+        const emplyPlayer = document.createElement("div");
         const emptyPlayerSpan = document.createElement("span");
-        emplyPlayerLi.appendChild(emptyPlayerSpan);
-        if(maxPlayers > i + data.players.length){
-            emplyPlayerLi.id = "player-slot";
-        }
-        emptyPlayerSpan.innerText = "\n";
+        emplyPlayer.appendChild(emptyPlayerSpan);
+        emplyPlayer.id = "player-slot";
         emptyPlayerSpan.id = "player-name";
-        playersList.appendChild(emplyPlayerLi); 
+        playersList.appendChild(emplyPlayer); 
     }
-    let dots = "\n";
+    let dots = "";
+    let dotCount = 0;
     setInterval(()=>{
-        if(dots === "\n"){
-            dots = "."
-        }
-        else if(dots.length < 3){
-            dots += ".";
+        if(dotCount < 3){
+            dots += "&centerdot;";
+            dotCount++;
         }
         else{
-            dots = "\n"
+            dots = "";
+            dotCount = 0;
         }
         for(let i = playersNumber; i < maxPlayers; i++){
-            (playersList.children[i].children[0] as HTMLSpanElement).innerText = dots;
+            (playersList.children[i].children[0] as HTMLSpanElement).innerHTML = dots;
         }
     }, 500);
 }

@@ -25,8 +25,8 @@ async function hostHandler(data: any, socket: any){
     let maxPlayers: number;
     if(typeof data.maxPlayers === "number"){
         maxPlayers = data.maxPlayers;
-        if((maxPlayers > 10 || maxPlayers < 2) && isInt(maxPlayers)){
-            return socket.emit("error", {message: "The maxPlayers is not in range of 2 - 10"});
+        if((maxPlayers > 30 || maxPlayers < 2) && isInt(maxPlayers)){
+            return socket.emit("error", {message: "The maxPlayers is not in range of 2 - 30"});
         }
     }
     else{

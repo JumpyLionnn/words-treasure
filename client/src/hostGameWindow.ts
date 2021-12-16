@@ -2,7 +2,7 @@
 
 // host game buttons
 const durationDropdown = document.getElementById("duration") as HTMLSelectElement;
-const maxPlayersDropdown = document.getElementById("max-players") as HTMLSelectElement;
+const maxPlayersInput = document.getElementById("max-players-input") as HTMLInputElement;
 const difficultyButtons = document.querySelectorAll("button.difficulty-button") as NodeListOf<HTMLButtonElement>;
 
 const createButton = document.getElementById("create-button") as HTMLButtonElement;
@@ -17,6 +17,16 @@ difficultyButtons.forEach((element)=>{
         });
         element.classList.add("difficulty-selected");
     });
+});
+
+maxPlayersInput.addEventListener("input", () =>{
+    const value = parseInt(maxPlayersInput.value);
+    if(value > parseInt(maxPlayersInput.max)){
+        maxPlayersInput.value = maxPlayersInput.max;
+    }
+    else if(value < parseInt(maxPlayersInput.min)){
+        maxPlayersInput.value = maxPlayersInput.min;
+    }
 });
 
 const hostNameTextbox = document.getElementById("host-name-textbox") as HTMLInputElement;
@@ -58,7 +68,7 @@ function startHostGameWindow(){
 
 function createGame(){
     let duration = durationDropdown.selectedIndex + 2;
-    let maxPlayers = maxPlayersDropdown.selectedIndex + 2;
+    let maxPlayers = parseInt(maxPlayersInput.value);
     playerName = hostNameTextbox.value.trim();
 
     if(playerName.length > 10 || playerName.length < 2){
